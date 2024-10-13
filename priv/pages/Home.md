@@ -17,7 +17,7 @@ On the left, you can see the menu generated from all your files in the `priv/pag
 - In the middle, [Posts](#posts) are ordered by date
 - On the bottom, the list of page tags is shown
 
-Menu navigation is handled by Phoenix LiveView `patch` actions. This means navigating the menu does not trigger a full page reload, it only fetches the new content using websockets and swaps out the relevent parts.
+Menu navigation is handled by Phoenix LiveView `patch` actions. This means navigating the menu does not trigger a full page reload, it only fetches the new content using websockets and swaps out the relevant parts.
 
 You can set up the page structure as follows.
 
