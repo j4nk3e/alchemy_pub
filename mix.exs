@@ -73,7 +73,7 @@ defmodule AlchemyPub.MixProject do
     [
       setup: ["deps.get", "create_db", "assets.setup", "assets.build"],
       test: ["test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.setup": ["cmd npm install --prefix assets", "tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind alchemy_pub", "esbuild alchemy_pub"],
       "assets.deploy": [
         "tailwind alchemy_pub --minify",
