@@ -17,7 +17,7 @@ defmodule AlchemyPubWeb.PageLive do
                 name={"hero-" <> Map.get(meta, "icon", i == 0 && "home-modern" || "document")}
                 class="h-5 w-5"
               />
-              <%= Map.get(meta, "title") %>
+              <%= raw(Map.get(meta, "title")) %>
               <%= if Map.get(meta, "tags", [])
                   |> Enum.any?(fn t -> Engine.urlify(t) == @tag end) do %>
                 <span class="badge badge-xs badge-info" />
