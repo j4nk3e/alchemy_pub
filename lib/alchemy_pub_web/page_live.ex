@@ -77,27 +77,25 @@ defmodule AlchemyPubWeb.PageLive do
   end
 
   def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> assign(post_title: "Loading")
+    if connected?(socket) do
+      PubSub.subscribe(AlchemyPub.PubSub, "page_update")
+    end
 
-    {:ok, socket}
+    {:ok, socket |> assign(post_title: "Loading")}
   end
 
   def handle_params(params, _url, socket) do
-    title = Map.get(socket.assigns, :title, nil)
+    {:noreply, rebuild(socket, params)}
+  end
 
-    if title do
-      PubSub.unsubscribe(AlchemyPub.PubSub, "title:#{title}")
-    end
-
+  defp rebuild(socket, params) do
     all = Engine.find_sorted()
     {pages, posts} = all |> Enum.split_with(fn [_, rank | _] -> rank != nil end)
     pages = pages |> Enum.reverse()
 
     tags =
       for [_, _, _, meta] <- all do
-        Map.get(meta, "tags", [])
+        Map.get(meta, "tags")
       end
       |> List.flatten()
       |> Enum.map(fn t -> {Engine.urlify(t), t} end)
@@ -131,12 +129,6 @@ defmodule AlchemyPubWeb.PageLive do
     socket =
       case page do
         {title, _rank, _date, meta, content} ->
-          sub = "title:#{title}"
-
-          if connected?(socket) do
-            PubSub.subscribe(AlchemyPub.PubSub, sub)
-          end
-
           socket
           |> assign(
             page_title: meta |> Map.get("title"),
@@ -189,9 +181,7 @@ defmodule AlchemyPubWeb.PageLive do
         false -> {pages |> filter_robot, posts |> filter_robot}
       end
 
-    socket = socket |> assign(posts: posts, pages: pages, tags: tags)
-
-    {:noreply, socket}
+    socket |> assign(posts: posts, pages: pages, tags: tags, params: params)
   end
 
   defp filter_hidden(pages) do
@@ -205,7 +195,17 @@ defmodule AlchemyPubWeb.PageLive do
     end)
   end
 
-  def handle_info({_meta, content}, socket) do
-    {:noreply, socket |> assign(content: content)}
+  def handle_info({:add, _title}, socket) do
+    {:noreply, socket |> rebuild(socket.assigns.params)}
+  end
+
+  def handle_info({:remove, title}, socket) do
+    socket =
+      cond do
+        title == socket.assigns.title -> push_patch(socket, to: "/")
+        true -> socket |> rebuild(socket.assigns.params)
+      end
+
+    {:noreply, socket}
   end
 end

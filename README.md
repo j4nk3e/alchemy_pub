@@ -42,7 +42,7 @@ AlchemyPub is originally brought to you by [j4nk.dev](https://j4nk.dev). It is p
 - [x] Write tests
 - [x] Write documentation
 - [x] Publish on Github
-- [ ] Live page add/remove support
+- [x] Live page add/remove support
 - [ ] Legal stuff
 - [ ] Deployment
 - [ ] Keyboard navigation

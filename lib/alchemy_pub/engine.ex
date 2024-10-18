@@ -97,6 +97,12 @@ defmodule AlchemyPub.Engine do
     |> Enum.sort(fn [_, a, b | _], [_, c, d | _] -> {a, b} >= {c, d} end)
   end
 
+  defp remove_post(path) do
+    title = path |> Path.basename() |> Path.rootname() |> urlify()
+    :ets.delete(@ets, title)
+    title
+  end
+
   defp create_or_update_post(path) do
     {frontmatter, md} =
       case YamlFrontMatter.parse_file(path) do
@@ -121,9 +127,10 @@ defmodule AlchemyPub.Engine do
     title = title(filename, h1, frontmatter)
 
     meta =
-      Map.put(frontmatter, "title", title)
+      frontmatter
+      |> Map.put("title", title)
       |> Map.put("date", date)
-      |> Map.update("tags", [], & &1)
+      |> Map.update("tags", [], fn t -> t || [] end)
 
     post = {urlify(filename), rank, date, meta, content}
     :ets.insert(@ets, post)
@@ -146,11 +153,21 @@ defmodule AlchemyPub.Engine do
   end
 
   def handle_info(
-        {:file_event, _watcher_pid, {path, _events}},
+        {:file_event, _watcher_pid, {path, events}},
         state
       ) do
-    {title, _rank, _date, frontmatter, content} = create_or_update_post(path)
-    PubSub.broadcast(AlchemyPub.PubSub, "title:#{title}", {frontmatter, content})
+    for e <- events |> Enum.filter(fn e -> e != :closed end) |> Enum.dedup() do
+      case e do
+        :moved_from ->
+          title = remove_post(path)
+          PubSub.broadcast(AlchemyPub.PubSub, "page_update", {:remove, title})
+
+        value when value in [:created, :moved_to, :modified] ->
+          title = create_or_update_post(path) |> elem(0)
+          PubSub.broadcast(AlchemyPub.PubSub, "page_update", {:add, title})
+      end
+    end
+
     {:noreply, state}
   end
 
