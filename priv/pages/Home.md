@@ -1,6 +1,7 @@
 ---
 rank: 0
 title: Home
+banner: Tärnättholmarna.jpg
 tags:
   - Documentation
 ---
@@ -40,6 +41,14 @@ The following properties are available on all pages:
   ```yaml
   ---
   title: Home
+  ---
+  ```
+
+- `banner`: This sets an image to be shown top of the content. The image file has to reside in the `priv/static/images` folder. Example:
+
+  ```yaml
+  ---
+  banner: Tärnättholmarna.jpg
   ---
   ```
 

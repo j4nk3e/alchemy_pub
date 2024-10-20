@@ -5,9 +5,9 @@ defmodule AlchemyPubWeb.PageLive do
 
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col md:flex-row justify-start lg:my-12 my-4 mr-auto">
-      <div class="menu menu-vertical ml-4 w-64">
-        <%= for {[title, _, _, meta], i} <- @pages |> Enum.with_index() do %>
+    <div class="flex flex-col min-h-svh md:flex-row justify-start">
+      <div class="menu menu-vertical w-64 border-solid border-l-2 border-neutral-700">
+        <%= for {[title, _, _date, meta], i} <- @pages |> Enum.with_index() do %>
           <li>
             <.link
               class={@title == title && "active" || ""}
@@ -68,9 +68,13 @@ defmodule AlchemyPubWeb.PageLive do
           </ul>
         </li>
       </div>
-      <div class="divider md:divider-horizontal mx-0"></div>
-      <div class="prose mx-4 md:w-full lg:w-[96rem]">
-        <%= raw(@content) %>
+      <div class="border-solid border-l-2 border-t-2 border-neutral-700" />
+      <div class="flex flex-col pb-8 border-solid border-r-2 border-neutral-700">
+        <div :if={Map.get(@meta, "banner")} class="w-full bg-cover bg-center h-[25vh]" style={"background-image: url('/images/#{Map.get(@meta, "banner")}'"} />
+        <div :if={!Map.get(@meta, "rank") && Map.get(@meta, "date")} class="self-end p-4 italic">published <%= Map.get(@meta, "date") %></div>
+        <div class="md:min-w-[32rem] lg:min-w-[40rem] prose p-4 flex-row">
+          <%= raw(@content) %>
+        </div>
       </div>
     </div>
     """
@@ -155,7 +159,7 @@ defmodule AlchemyPubWeb.PageLive do
 
                     [title, _r, date, meta] ->
                       "<li><a href=\"/#{date}/#{title}\">" <>
-                        (Map.get(meta, "date") |> Date.to_string()) <>
+                        (date |> Date.to_string()) <>
                         ": " <> Map.get(meta, "title") <> "</a></li>"
                   end)
                   |> Enum.join("")) <> "</ul>") ||
