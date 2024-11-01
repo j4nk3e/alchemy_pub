@@ -56,7 +56,7 @@ defmodule AlchemyPub.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1"},
       {:bandit, "~> 1.5"},
-      {:phoenix_analytics, "~> 0.1"},
+      {:phoenix_analytics, "~> 0.2"},
       {:yaml_front_matter, "~> 1.0"},
       {:file_system, "~> 1.0"},
       {:earmark, "~> 1.4"}
@@ -73,7 +73,11 @@ defmodule AlchemyPub.MixProject do
     [
       setup: ["deps.get", "create_db", "assets.setup", "assets.build"],
       test: ["test"],
-      "assets.setup": ["cmd npm install --prefix assets", "tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.setup": [
+        "cmd npm install --prefix assets",
+        "tailwind.install --if-missing",
+        "esbuild.install --if-missing"
+      ],
       "assets.build": ["tailwind alchemy_pub", "esbuild alchemy_pub"],
       "assets.deploy": [
         "tailwind alchemy_pub --minify",
