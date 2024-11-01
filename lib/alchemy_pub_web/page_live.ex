@@ -72,7 +72,7 @@ defmodule AlchemyPubWeb.PageLive do
       <div class="flex flex-col pb-8 border-solid border-r-2 border-neutral-700">
         <div :if={Map.get(@meta, "banner")} class="w-full bg-cover bg-center h-[25vh]" style={"background-image: url('/images/#{Map.get(@meta, "banner")}'"} />
         <div :if={!Map.get(@meta, "rank") && Map.get(@meta, "date")} class="self-end p-4 italic">published <%= Map.get(@meta, "date") %></div>
-        <div class="md:min-w-[32rem] lg:min-w-[40rem] prose p-4 flex-row">
+        <div class="prose md:w-[34rem] lg:min-w-[42rem] p-4 flex-row">
           <%= raw(@content) %>
         </div>
       </div>
