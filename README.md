@@ -25,6 +25,15 @@ Put your pages as markdown files in the `priv/pages` directory. You can read mor
 
 Ready to run in production? Please [check the Phoenix deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
+## Release
+
+```sh
+mix assets.deploy
+MIX_ENV=prod mix release
+mix phx.digest.clean --all
+PHX_SERVER=true PHX_HOST=localhost SECRET_KEY_BASE="{{ key }}" _build/prod/rel/alchemy_pub/bin/alchemy_pub start
+```
+
 ## Credits
 
 AlchemyPub is originally brought to you by [j4nk.dev](https://j4nk.dev). It is published under the [Apache License 2.0](LICENSE).
@@ -43,7 +52,7 @@ AlchemyPub is originally brought to you by [j4nk.dev](https://j4nk.dev). It is p
 - [x] Write documentation
 - [x] Publish on Github
 - [x] Live page add/remove support
-- [ ] Deployment
+- [x] Deployment
 - [ ] Keyboard navigation
 - [ ] Live viewer count
 - [ ] LiveView patch tag navigation support
