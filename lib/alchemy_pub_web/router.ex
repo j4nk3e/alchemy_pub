@@ -31,7 +31,7 @@ defmodule AlchemyPubWeb.Router do
 
     scope "/dev" do
       pipe_through :browser
-      phoenix_analytics_dashboard "/analytics"
+      phoenix_analytics_dashboard("/analytics")
       live_dashboard "/dashboard", metrics: AlchemyPubWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end

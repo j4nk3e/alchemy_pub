@@ -9,15 +9,12 @@ defmodule AlchemyPubWeb.PageLive do
       <div class="menu menu-vertical w-64 border-solid border-l-2 border-neutral-700">
         <%= for {[title, _, _date, meta], i} <- @pages |> Enum.with_index() do %>
           <li>
-            <.link
-              class={@title == title && "active" || ""}
-              patch={i == 0 && "/" || "/#{title}"}
-            >
+            <.link class={(@title == title && "active") || ""} patch={(i == 0 && "/") || "/#{title}"}>
               <.icon
                 name={"hero-" <> Map.get(meta, "icon", i == 0 && "home-modern" || "document")}
                 class="h-5 w-5"
               />
-              <%= raw(Map.get(meta, "title")) %>
+              {raw(Map.get(meta, "title"))}
               <%= if Map.get(meta, "tags", [])
                   |> Enum.any?(fn t -> Engine.urlify(t) == @tag end) do %>
                 <span class="badge badge-xs badge-info" />
@@ -28,16 +25,13 @@ defmodule AlchemyPubWeb.PageLive do
         <li>
           <%= for {{year, _}, posts} <- Enum.group_by(@posts, fn [_, _, date | _] -> Date.year_of_era(date) end) |> Enum.sort(:desc) do %>
             <div class="menu-title">
-              <.icon name="hero-calendar" class="h-5 w-5 mr-2 mb-1" /><%= year %>
+              <.icon name="hero-calendar" class="h-5 w-5 mr-2 mb-1" />{year}
             </div>
             <ul>
               <%= for [title, _, date, meta] <- posts do %>
                 <li>
-                  <.link
-                    class={ @title == title && "active" || ""}
-                    patch={"/#{date}/#{title}"}
-                  >
-                    <%= raw(Map.get(meta, "title")) %>
+                  <.link class={(@title == title && "active") || ""} patch={"/#{date}/#{title}"}>
+                    {raw(Map.get(meta, "title"))}
                     <%= if Map.get(meta, "tags", [])
                       |> Enum.any?(fn t -> Engine.urlify(t) == @tag end) do %>
                       <span class="badge badge-xs badge-info" />
@@ -53,11 +47,8 @@ defmodule AlchemyPubWeb.PageLive do
           <ul>
             <%= for {tag, title} <- @tags do %>
               <li>
-                <.link
-                  class={@tag == tag && "active" || ""}
-                  patch={"/tag/#{tag}"}
-                >
-                  <%= title %>
+                <.link class={(@tag == tag && "active") || ""} patch={"/tag/#{tag}"}>
+                  {title}
                   <%= if Map.get(@meta, "tags", [])
                       |> Enum.any?(fn t -> Engine.urlify(t) == tag end) do %>
                     <span class="badge badge-xs badge-info" />
@@ -70,10 +61,16 @@ defmodule AlchemyPubWeb.PageLive do
       </div>
       <div class="border-solid border-l-2 border-t-2 border-neutral-700" />
       <div class="flex flex-col pb-8 border-solid border-r-2 border-neutral-700">
-        <div :if={Map.get(@meta, "banner")} class="w-full bg-cover bg-center h-[25vh]" style={"background-image: url('/images/#{Map.get(@meta, "banner")}'"} />
-        <div :if={!Map.get(@meta, "rank") && Map.get(@meta, "date")} class="self-end p-4 italic">published <%= Map.get(@meta, "date") %></div>
+        <div
+          :if={Map.get(@meta, "banner")}
+          class="w-full bg-cover bg-center h-[25vh]"
+          style={"background-image: url('/images/#{Map.get(@meta, "banner")}'"}
+        />
+        <div :if={!Map.get(@meta, "rank") && Map.get(@meta, "date")} class="self-end p-4 italic">
+          published {Map.get(@meta, "date")}
+        </div>
         <div class="prose md:w-[34rem] lg:min-w-[42rem] p-4 flex-row">
-          <%= raw(@content) %>
+          {raw(@content)}
         </div>
       </div>
     </div>
