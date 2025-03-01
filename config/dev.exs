@@ -16,7 +16,7 @@ config :alchemy_pub, AlchemyPubWeb.Endpoint,
   secret_key_base: "QTJv7Qn0zOcczi48xHo5HfEyr3tRwA6Gz6QFCM1J6przHoAuJdUlJwqHBdQxQR55",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:alchemy_pub, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:alchemy_pub, ~w(--watch)]}
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support

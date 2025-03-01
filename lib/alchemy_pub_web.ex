@@ -85,6 +85,8 @@ defmodule AlchemyPubWeb do
       import AlchemyPubWeb.CoreComponents
       import AlchemyPubWeb.Gettext
 
+      use DaisyUIComponents
+
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
 

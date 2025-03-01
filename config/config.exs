@@ -29,7 +29,7 @@ config :alchemy_pub, AlchemyPub.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.17.11",
+  version: "0.24.2",
   alchemy_pub: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
@@ -37,17 +37,17 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
-# Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.4.3",
-  alchemy_pub: [
+  version: "4.0.9",
+  default: [
     args: ~w(
-      --config=tailwind.config.js
-      --input=css/app.css
-      --output=../priv/static/assets/app.css
+      --input=assets/css/app.css
+      --output=priv/static/assets/app.css
     ),
-    cd: Path.expand("../assets", __DIR__)
+    cd: Path.expand("..", __DIR__)
   ]
+
+config :daisy_ui_components, translate_function: &AlchemyPubWeb.CoreComponents.translate_error/1
 
 # Configures Elixir's Logger
 config :logger, :console,
