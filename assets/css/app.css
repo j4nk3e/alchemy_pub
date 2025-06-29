@@ -1,206 +1,269 @@
-@source "../js/**/*.js";
-@source "../../lib/*_web.ex";
-@source "../../lib/*_web/**/*.*ex";
+/* See the Tailwind configuration guide for advanced usage
+   https://tailwindcss.com/docs/configuration */
+@import "tailwindcss" source(none);
+@source "../css";
+@source "../js";
+@source "../../lib/alchemy_pub_web";
 
-@import "tailwindcss" source("../..");
 @plugin "@tailwindcss/typography";
 
-@plugin "../heroicons.tailwind.plugin.js";
+/* A Tailwind plugin that makes "hero-#{ICON}" classes available.
+   The heroicons installation itself is managed by your mix.exs */
+@plugin "../vendor/heroicons";
 
-@plugin "daisyui" {
-  themes: dim --prefersdark, light --default;
+/* daisyUI Tailwind Plugin. You can update this file by fetching the latest version with:
+   curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui.js
+   Make sure to look at the daisyUI changelog: https://daisyui.com/docs/changelog/ */
+@plugin "../vendor/daisyui" {
+}
+
+@source inline("mr-1");
+@source inline("mb-2");
+@source inline("pl-2");
+@source inline("opacity-20");
+@source inline("hover:opacity-60");
+@source inline("no-underline");
+@source inline("bg-accent");
+@source inline("accent");
+@source inline("hero-megaphone");
+@source inline("hero-newspaper");
+@source inline("hero-home-modern");
+@source inline("hero-scale");
+@source inline("hero-beaker");
+@source inline("hero-document");
+@source inline("hero-identification");
+@source inline("hero-musical-note");
+@source inline("hero-code-bracket");
+@source inline("hero-envelope");
+@source inline("hero-globe-alt");
+@source inline("hero-calendar-days");
+@source inline("prose");
+@source inline("not-prose");
+@source inline("whitespace-nowrap");
+@source inline("w-full");
+@source inline("flex");
+@source inline("grow");
+@source inline("flex-row");
+@source inline("flex-wrap");
+@source inline("gap-2");
+@source inline("items-center");
+@source inline("justify-between");
+@source inline("justify-center");
+@source inline("justify-evenly");
+@source inline("btn");
+@source inline("badge");
+@source inline("badge-primary");
+@source inline("badge-secondary");
+@source inline("badge-tertiary");
+@source inline("badge-outline");
+@source inline("print:hidden");
+@source inline("print:border-0");
+@source inline("print:w-[50rem]");
+
+/* Add variants based on LiveView classes */
+@custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+
+/* Make LiveView wrapper divs transparent for layout */
+[data-phx-session] {
+    display: contents;
 }
 
 @layer components {
-  .prose :where(hr):not(:where([class~="not-prose"] *)) {
-    @apply my-6;
-  }
+    blockquote p {
+        @apply text-primary font-semibold;
+    }
+}
+
+a {
+    overflow-wrap: anywhere;
 }
 
 /* This file is for your main application CSS */
 code.hljs {
-  color: #cdd6f4;
-  background: transparent;
+    color: #cdd6f4;
+    background: transparent;
 }
 
 code .hljs-keyword {
-  color: #cba6f7;
+    color: #cba6f7;
 }
 
 code .hljs-built_in {
-  color: #f38ba8;
+    color: #f38ba8;
 }
 
 code .hljs-type {
-  color: #f9e2af;
+    color: #f9e2af;
 }
 
 code .hljs-literal {
-  color: #fab387;
+    color: #fab387;
 }
 
 code .hljs-number {
-  color: #fab387;
+    color: #fab387;
 }
 
 code .hljs-operator {
-  color: #89dceb;
+    color: #89dceb;
 }
 
 code .hljs-punctuation {
-  color: #bac2de;
+    color: #bac2de;
 }
 
 code .hljs-property {
-  color: #94e2d5;
+    color: #94e2d5;
 }
 
 code .hljs-regexp {
-  color: #f5c2e7;
+    color: #f5c2e7;
 }
 
 code .hljs-string {
-  color: #a6e3a1;
+    color: #a6e3a1;
 }
 
 code .hljs-char.escape_ {
-  color: #a6e3a1;
+    color: #a6e3a1;
 }
 
 code .hljs-subst {
-  color: #a6adc8;
+    color: #a6adc8;
 }
 
 code .hljs-symbol {
-  color: #f2cdcd;
+    color: #f2cdcd;
 }
 
 code .hljs-variable {
-  color: #cba6f7;
+    color: #cba6f7;
 }
 
 code .hljs-variable.language_ {
-  color: #cba6f7;
+    color: #cba6f7;
 }
 
 code .hljs-variable.constant_ {
-  color: #fab387;
+    color: #fab387;
 }
 
 code .hljs-title {
-  color: #89b4fa;
+    color: #89b4fa;
 }
 
 code .hljs-title.class_ {
-  color: #f9e2af;
+    color: #f9e2af;
 }
 
 code .hljs-title.function_ {
-  color: #89b4fa;
+    color: #89b4fa;
 }
 
 code .hljs-params {
-  color: #cdd6f4;
+    color: #cdd6f4;
 }
 
 code .hljs-comment {
-  color: #9399b2;
+    color: #9399b2;
 }
 
 code .hljs-doctag {
-  color: #f38ba8;
+    color: #f38ba8;
 }
 
 code .hljs-meta {
-  color: #fab387;
+    color: #fab387;
 }
 
 code .hljs-section {
-  color: #89b4fa;
+    color: #89b4fa;
 }
 
 code .hljs-tag {
-  color: #94e2d5;
+    color: #94e2d5;
 }
 
 code .hljs-name {
-  color: #cba6f7;
+    color: #cba6f7;
 }
 
 code .hljs-attr {
-  color: #89b4fa;
+    color: #89b4fa;
 }
 
 code .hljs-attribute {
-  color: #a6e3a1;
+    color: #a6e3a1;
 }
 
 code .hljs-bullet {
-  color: #94e2d5;
+    color: #94e2d5;
 }
 
 code .hljs-code {
-  color: #a6e3a1;
+    color: #a6e3a1;
 }
 
 code .hljs-emphasis {
-  color: #f38ba8;
-  font-style: italic;
+    color: #f38ba8;
+    font-style: italic;
 }
 
 code .hljs-strong {
-  color: #f38ba8;
-  font-weight: bold;
+    color: #f38ba8;
+    font-weight: bold;
 }
 
 code .hljs-formula {
-  color: #94e2d5;
+    color: #94e2d5;
 }
 
 code .hljs-link {
-  color: #74c7ec;
-  font-style: italic;
+    color: #74c7ec;
+    font-style: italic;
 }
 
 code .hljs-quote {
-  color: #a6e3a1;
-  font-style: italic;
+    color: #a6e3a1;
+    font-style: italic;
 }
 
 code .hljs-selector-tag {
-  color: #f9e2af;
+    color: #f9e2af;
 }
 
 code .hljs-selector-id {
-  color: #89b4fa;
+    color: #89b4fa;
 }
 
 code .hljs-selector-class {
-  color: #94e2d5;
+    color: #94e2d5;
 }
 
 code .hljs-selector-attr {
-  color: #cba6f7;
+    color: #cba6f7;
 }
 
 code .hljs-selector-pseudo {
-  color: #94e2d5;
+    color: #94e2d5;
 }
 
 code .hljs-template-tag {
-  color: #f2cdcd;
+    color: #f2cdcd;
 }
 
 code .hljs-template-variable {
-  color: #f2cdcd;
+    color: #f2cdcd;
 }
 
 code .hljs-addition {
-  color: #a6e3a1;
-  background: rgba(166, 227, 161, 0.15);
+    color: #a6e3a1;
+    background: rgba(166, 227, 161, 0.15);
 }
 
 code .hljs-deletion {
-  color: #f38ba8;
-  background: rgba(243, 139, 168, 0.15);
+    color: #f38ba8;
+    background: rgba(243, 139, 168, 0.15);
 }

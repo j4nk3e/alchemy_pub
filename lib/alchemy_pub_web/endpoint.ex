@@ -4,6 +4,9 @@ defmodule AlchemyPubWeb.Endpoint do
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
+  alias Phoenix.LiveDashboard.RequestLogger
+  alias Phoenix.LiveView.Socket
+
   @session_options [
     store: :cookie,
     key: "_alchemy_pub_key",
@@ -11,7 +14,7 @@ defmodule AlchemyPubWeb.Endpoint do
     same_site: "Lax"
   ]
 
-  socket "/live", Phoenix.LiveView.Socket,
+  socket "/live", Socket,
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
@@ -25,8 +28,6 @@ defmodule AlchemyPubWeb.Endpoint do
     gzip: false,
     only: AlchemyPubWeb.static_paths()
 
-  plug PhoenixAnalytics.Plugs.RequestTracker
-
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
@@ -35,7 +36,7 @@ defmodule AlchemyPubWeb.Endpoint do
     plug Phoenix.CodeReloader
   end
 
-  plug Phoenix.LiveDashboard.RequestLogger,
+  plug RequestLogger,
     param_key: "request_logger",
     cookie_key: "request_logger"
 

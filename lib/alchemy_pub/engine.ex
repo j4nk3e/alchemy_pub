@@ -1,9 +1,10 @@
 defmodule AlchemyPub.Engine do
   use GenServer
+
   alias Phoenix.PubSub
 
-  def urlify(content) when is_list(content), do: Enum.map(content, &urlify/1) |> Enum.join("-")
-  def urlify({_, _, l, _}), do: Enum.map(l, &urlify/1) |> Enum.join("-")
+  def urlify(content) when is_list(content), do: Enum.map_join(content, "-", &urlify/1)
+  def urlify({_, _, l, _}), do: Enum.map_join(l, "-", &urlify/1)
 
   def urlify(content),
     do:
@@ -92,9 +93,15 @@ defmodule AlchemyPub.Engine do
     :ets.lookup(@ets, title) |> List.first()
   end
 
-  def find_sorted() do
+  def find_sorted do
     :ets.match(@ets, {:"$1", :"$2", :"$3", :"$4", :_})
-    |> Enum.sort(fn [_, a, b | _], [_, c, d | _] -> {a, b} >= {c, d} end)
+    |> Enum.sort(fn [_, a, b | _], [_, c, d | _] ->
+      cond do
+        a > c -> true
+        a < c -> false
+        true -> Date.compare(b, d) != :lt
+      end
+    end)
   end
 
   defp remove_post(path) do
@@ -152,10 +159,7 @@ defmodule AlchemyPub.Engine do
     {:ok, entries}
   end
 
-  def handle_info(
-        {:file_event, _watcher_pid, {path, events}},
-        state
-      ) do
+  def handle_info({:file_event, _watcher_pid, {path, events}}, state) do
     for e <- events |> Enum.filter(fn e -> e != :closed end) |> Enum.dedup() do
       case e do
         :moved_from ->

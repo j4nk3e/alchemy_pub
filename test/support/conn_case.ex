@@ -12,15 +12,14 @@ defmodule AlchemyPubWeb.ConnCase do
 
   using do
     quote do
+      use AlchemyPubWeb, :verified_routes
+      import AlchemyPubWeb.ConnCase
+      import Phoenix.ConnTest
+      import Plug.Conn
       # The default endpoint for testing
       @endpoint AlchemyPubWeb.Endpoint
 
-      use AlchemyPubWeb, :verified_routes
-
       # Import conveniences for testing with connections
-      import Plug.Conn
-      import Phoenix.ConnTest
-      import AlchemyPubWeb.ConnCase
     end
   end
 

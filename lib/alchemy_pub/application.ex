@@ -16,6 +16,8 @@ defmodule AlchemyPub.Application do
       # Start a worker by calling: AlchemyPub.Worker.start_link(arg)
       # {AlchemyPub.Worker, arg},
       {AlchemyPub.Engine, base_path: "priv/pages"},
+      AlchemyPub.Presence,
+      AlchemyPub.Repo,
       # Start to serve requests, typically the last entry
       AlchemyPubWeb.Endpoint
     ]

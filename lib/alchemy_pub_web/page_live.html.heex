@@ -1,0 +1,130 @@
+<Layouts.app flash={@flash}>
+  <div class="flex flex-col gap-0.5 min-h-svh p-1">
+    <div class="flex flex-col gap-0.5 grow md:flex-row justify-start">
+      <div class="collapse collapse-plus md:collapse-open w-full md:w-64 print:hidden bg-base-100 rounded-lg">
+        <input id="menu-open" type="checkbox" class="md:hidden" phx-update="ignore" />
+        <div class="collapse-title md:hidden font-semibold text-sm content-center bg-base-200 rounded-lg">
+          {raw(@page_title)}
+        </div>
+        <div class="collapse-content p-0">
+          <div class="menu menu-vertical w-full py-4">
+            <li :for={{[title, _, _date, meta], i} <- @pages |> Enum.with_index()}>
+              <.link
+                class={(@title == title && active_class()) || ""}
+                patch={(i == 0 && "/") || "/#{title}"}
+                phx-click={JS.dispatch("click", to: "#menu-open")}
+              >
+                <.icon
+                  name={"hero-" <> Map.get(meta, "icon", i == 0 && "home-modern" || "document")}
+                  class="size-5"
+                />
+                {raw(Map.get(meta, "title"))}
+                <%= if Map.get(meta, "tags" , []) |> Enum.any?(fn t -> Engine.urlify(t) == @tag end) do %>
+                  <span class="badge badge-xs badge-info" />
+                <% end %>
+              </.link>
+            </li>
+            <li>
+              <%= for {{year, _}, posts} <- Enum.group_by(@posts, fn [_, _, date | _] -> Date.year_of_era(date) end)
+                  |> Enum.sort(:desc) do %>
+                <div class="menu-title">
+                  <.icon name="hero-calendar" class="size-5 mr-2 mb-1" />{year}
+                </div>
+                <ul>
+                  <%= for [title, _, date, meta] <- posts do %>
+                    <li>
+                      <.link
+                        class={(@title == title && active_class()) || ""}
+                        patch={"/#{date}/#{title}"}
+                        phx-click={JS.dispatch("click", to: "#menu-open")}
+                      >
+                        {raw(Map.get(meta, "title"))}
+                        <%= if Map.get(meta, "tags" , []) |> Enum.any?(fn t -> Engine.urlify(t) == @tag end) do %>
+                          <span class="badge badge-xs badge-info" />
+                        <% end %>
+                      </.link>
+                    </li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </li>
+            <li>
+              <div class="menu-title">
+                <.icon name="hero-tag" class="size-5 mr-2 mb-1" />Tags
+              </div>
+              <ul>
+                <%= for {tag, title} <- @tags do %>
+                  <li>
+                    <.link
+                      class={(@tag == tag && active_class()) || ""}
+                      patch={"/tag/#{tag}"}
+                      phx-click={JS.dispatch("click", to: "#menu-open")}
+                    >
+                      {title}
+                      <%= if Map.get(@meta, "tags" , []) |> Enum.any?(fn t -> Engine.urlify(t) == tag end) do %>
+                        <span class="badge badge-xs badge-info" />
+                      <% end %>
+                    </.link>
+                  </li>
+                <% end %>
+              </ul>
+            </li>
+            <li>
+              <div class="menu-title">
+                <.icon name="hero-chart-bar" class="size-5 mr-2 mb-1" />Stats
+              </div>
+              <ul>
+                <li class="menu-title">
+                  <div class="flex flex-row justify-between">
+                    Online: <span class="badge badge-sm badge-success">{@viewers}</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </div>
+        </div>
+      </div>
+      <div id="top" class="flex flex-col gap-0.5 pb-8">
+        <div
+          :if={Map.get(@meta, "header", true)}
+          class="flex flex-row gap-2 p-2 justify-end content-center bg-base-200 rounded-lg"
+        >
+          <div class="text-xl font-extrabold content-center">{@page_title}</div>
+          <img
+            alt="avatar"
+            src="/images/avatar.webp"
+            class="size-16"
+            style="image-rendering:pixelated;"
+          />
+        </div>
+        <div
+          :if={Map.get(@meta, "banner")}
+          class="w-full bg-cover bg-center h-[25vh] rounded-lg"
+          style={"background-image:url('/images/#{Map.get(@meta, "banner" )}'"}
+        />
+        <div :if={!Map.get(@meta, "rank") && Map.get(@meta, "date")} class="self-end p-4 italic">
+          published {Map.get(@meta, "date")}
+        </div>
+        <div class="prose self-center md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] p-4 flex flex-col">
+          {raw(@content)}
+        </div>
+      </div>
+    </div>
+    <footer class="footer sm:footer-horizontal footer-center bg-base-200 rounded-lg text-base-content p-4 print:hidden">
+      <aside>
+        <p>Copyright © {Date.utc_today() |> Date.to_erl() |> elem(0)} {@copyright.name}.</p>
+        <p>
+          All content on this website is licensed under
+          <a
+            href={@copyright.url}
+            target="_blank"
+            rel="license noopener noreferrer"
+            class="link link-primary"
+          >
+            {@copyright.license}
+          </a>
+        </p>
+      </aside>
+    </footer>
+  </div>
+</Layouts.app>

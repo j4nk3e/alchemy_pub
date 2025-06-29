@@ -17,8 +17,6 @@ import Config
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
 if System.get_env("PHX_SERVER") do
-  config :alchemy_pub, AlchemyPubWeb.Endpoint, server: true
-
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
   # want to use a different value for prod and you most likely don't want
@@ -34,7 +32,7 @@ if System.get_env("PHX_SERVER") do
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
-  config :alchemy_pub, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+  config :alchemy_pub, AlchemyPubWeb.Endpoint, server: true
 
   config :alchemy_pub, AlchemyPubWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
@@ -47,6 +45,8 @@ if System.get_env("PHX_SERVER") do
       port: port
     ],
     secret_key_base: secret_key_base
+
+  config :alchemy_pub, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   # ## SSL Support
   #

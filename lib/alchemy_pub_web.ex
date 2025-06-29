@@ -17,16 +17,17 @@ defmodule AlchemyPubWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts images favicon.png favicon.webp robots.txt)
 
   def router do
     quote do
       use Phoenix.Router, helpers: false
 
-      # Import common connection and controller functions to use in pipelines
-      import Plug.Conn
       import Phoenix.Controller
       import Phoenix.LiveView.Router
+
+      # Import common connection and controller functions to use in pipelines
+      import Plug.Conn
     end
   end
 
@@ -38,12 +39,10 @@ defmodule AlchemyPubWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller,
-        formats: [:html, :json],
-        layouts: [html: AlchemyPubWeb.Layouts]
+      use Phoenix.Controller, formats: [:html, :json]
+      use Gettext, backend: AlchemyPubWeb.Gettext
 
       import Plug.Conn
-      import AlchemyPubWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -52,6 +51,7 @@ defmodule AlchemyPubWeb do
   def live_view do
     quote do
       use Phoenix.LiveView
+
       unquote(html_helpers())
     end
   end
@@ -79,13 +79,13 @@ defmodule AlchemyPubWeb do
 
   defp html_helpers do
     quote do
+      use Gettext, backend: AlchemyPubWeb.Gettext
+
+      import AlchemyPubWeb.CoreComponents
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
-      import AlchemyPubWeb.CoreComponents
-      import AlchemyPubWeb.Gettext
-
-      use DaisyUIComponents
+      alias AlchemyPubWeb.Layouts
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

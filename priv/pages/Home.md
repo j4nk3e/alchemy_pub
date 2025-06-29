@@ -140,4 +140,4 @@ A list of all supported languages can be found [here](https://github.com/highlig
 
 ## Analytics
 
-In the `dev` environment, the PhoenixAnalytics dashboard can be accessed under [/dev/analytics](/dev/analytics). To allow access in production, make sure the access to the analytics page is secured (if you don't want it to be public). This can be set up in the `lib/alchemy_pub/router.ex` in the `scope "/dev"` block.
+In the `dev` environment, the analytics dashboard can be accessed under [/dev/dashboard/analytics](/dev/dashboard/analytics). To allow access in production, make sure the access to the analytics page is secured (if you don't want it to be public). This can be set up in the `lib/alchemy_pub/router.ex` in the `scope "/dev"` block or by setting the environment variables `AUTH_USERNAME` and `AUTH_PASSWORD` for basic auth on the dashboard.

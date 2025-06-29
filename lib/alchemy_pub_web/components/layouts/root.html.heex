@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html data-theme="dim" lang="en" class="[scrollbar-gutter:stable]">
+<html lang="en" class="[scrollbar-gutter:stable]">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <meta property="og:site_name" content={assigns[:page_title] || "AlchemyPub"} />
+    <meta property="og:image" content="/images/avatar.webp" />
+    <meta property="og:image:width" content="128" />
+    <meta property="og:image:height" content="128" />
+    <meta property="og:image" content="/images/avatar.webp" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:title" content={assigns[:page_title] || "AlchemyPub"} />
+    <link rel="icon" href="/favicon.png" type="image/png" />
     <.live_title suffix=" | AlchemyPub">
-      {assigns[:page_title] || "AlchemyPub"}
+      {assigns[:page_title] || "Home"}
     </.live_title>
-    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
-    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    <link rel="alternate" type="application/rss+xml" title="RSS" href={~p"/feed.rss"} />
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
   </head>
 
-  <body>
-    <main class="min-h-svh md:container md:mx-auto lg:flex lg:justify-center">
-      <.flash_group flash={@flash} />
-      {@inner_content}
-    </main>
+  <body class="bg-base-300">
+    {@inner_content}
   </body>
 </html>
