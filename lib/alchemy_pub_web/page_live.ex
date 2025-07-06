@@ -41,15 +41,15 @@ defmodule AlchemyPubWeb.PageLive do
 
   @impl true
   def handle_params(params, uri, socket) do
-    uri = uri |> URI.parse()
+    parsed_uri = uri |> URI.parse()
     socket = socket |> rebuild(params)
     %{track_valid: track_valid} = socket.assigns
 
     Presence.update(self(), @topic, socket.id, fn map ->
-      Map.merge(map, %{valid: track_valid, path: uri.path, path_joined: DateTime.utc_now()})
+      Map.merge(map, %{valid: track_valid, path: parsed_uri.path, path_joined: DateTime.utc_now()})
     end)
 
-    {:noreply, socket}
+    {:noreply, socket |> assign(url: uri)}
   end
 
   @impl true

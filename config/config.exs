@@ -33,6 +33,10 @@ config :alchemy_pub, AlchemyPubWeb.Endpoint,
 config :alchemy_pub,
   ecto_repos: [AlchemyPub.Repo]
 
+config :mime, :types, %{
+  "image/svg+xml" => ["svg"]
+}
+
 config :alchemy_pub, :copyright,
   name: "AlchemyPub",
   url: "https://creativecommons.org/licenses/by/4.0/",

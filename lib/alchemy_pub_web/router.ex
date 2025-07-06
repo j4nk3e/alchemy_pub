@@ -24,6 +24,10 @@ defmodule AlchemyPubWeb.Router do
     plug(:accepts, ["xml"])
   end
 
+  pipeline :svg do
+    plug(:accepts, ["svg"])
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", AlchemyPubWeb do
   #   pipe_through :api
@@ -57,6 +61,11 @@ defmodule AlchemyPubWeb.Router do
     pipe_through(:rss)
 
     get "/feed.rss", FeedController, :index
+  end
+
+  scope "/", AlchemyPubWeb do
+    pipe_through(:svg)
+    get("/qr/*data", QrController, :index)
   end
 
   scope "/", AlchemyPubWeb do
