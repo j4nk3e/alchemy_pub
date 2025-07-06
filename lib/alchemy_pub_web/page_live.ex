@@ -130,13 +130,30 @@ defmodule AlchemyPubWeb.PageLive do
           )
       end
 
-    {pages, posts} =
+    {pages, posts, decks} =
       case connected?(socket) do
-        true -> {pages |> filter_hidden(), posts |> filter_hidden()}
-        false -> {pages |> filter_robot(), posts |> filter_robot()}
+        true ->
+          visible_pages = pages |> filter_hidden()
+
+          {visible_pages |> filter_rank(), posts |> filter_hidden(),
+           visible_pages |> filter_rank(:deck)}
+
+        false ->
+          visible_pages = pages |> filter_robot()
+
+          {visible_pages |> filter_rank(), posts |> filter_robot(),
+           visible_pages |> filter_rank(:deck)}
       end
 
-    socket |> assign(posts: posts, pages: pages, tags: tags, params: params)
+    socket |> assign(posts: posts, pages: pages, decks: decks, tags: tags, params: params)
+  end
+
+  defp filter_rank(pages, type) when is_atom(type) do
+    pages |> Enum.filter(fn [_, rank | _] -> rank == type end)
+  end
+
+  defp filter_rank(pages) do
+    pages |> Enum.filter(fn [_, rank | _] -> is_integer(rank) end)
   end
 
   defp filter_hidden(pages) do

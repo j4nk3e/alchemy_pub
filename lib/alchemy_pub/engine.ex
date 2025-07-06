@@ -1,4 +1,5 @@
 defmodule AlchemyPub.Engine do
+  @moduledoc false
   use GenServer
 
   alias Phoenix.PubSub
@@ -117,7 +118,9 @@ defmodule AlchemyPub.Engine do
         {:error, _} -> {%{}, File.read!(path)}
       end
 
-    rank = frontmatter |> Map.get("rank", nil)
+    is_deck = frontmatter |> Map.get("deck", false)
+    rank = frontmatter |> Map.get("rank", (is_deck && :deck) || nil)
+    tags = frontmatter |> Map.get("tags", []) |> List.wrap()
 
     date =
       with d when is_binary(d) <- frontmatter |> Map.get("date"),
@@ -135,9 +138,7 @@ defmodule AlchemyPub.Engine do
 
     meta =
       frontmatter
-      |> Map.put("title", title)
-      |> Map.put("date", date)
-      |> Map.update("tags", [], fn t -> t || [] end)
+      |> Map.merge(%{"title" => title, "date" => date, "rank" => rank, "tags" => tags})
 
     post = {urlify(filename), rank, date, meta, content}
     :ets.insert(@ets, post)

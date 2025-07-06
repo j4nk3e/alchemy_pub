@@ -48,6 +48,22 @@
                 </ul>
               <% end %>
             </li>
+            <li :if={@decks != []}>
+              <div class="menu-title">
+                <.icon name="hero-presentation-chart-bar" class="size-5 mr-2 mb-1" />Decks
+              </div>
+              <ul>
+                <li :for={[title, _, _, meta] <- @decks}>
+                  <.link
+                    class={(@title == title && active_class()) || ""}
+                    patch={"/#{title}"}
+                    phx-click={JS.dispatch("click", to: "#menu-open")}
+                  >
+                    {raw(Map.get(meta, "title"))}
+                  </.link>
+                </li>
+              </ul>
+            </li>
             <li>
               <div class="menu-title">
                 <.icon name="hero-tag" class="size-5 mr-2 mb-1" />Tags
