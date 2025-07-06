@@ -99,13 +99,13 @@
             </li>
           </div>
           <div :if={@meta["rank"] == :deck} class="p-2 content-center">
-          <div class="rounded-box border-1">
-            <div
-              class="bg-contain aspect-square w-full mix-blend-difference invert"
-              style={"background-image:url('/qr/#{@url}');"}
-            >
+            <div class="rounded-box border-1">
+              <div
+                class="bg-contain aspect-square w-full mix-blend-difference invert"
+                style={"background-image:url('/qr/#{@url}');"}
+              >
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>
@@ -130,7 +130,16 @@
         <div :if={!@meta["rank"] && @meta["date"]} class="self-end p-4 italic">
           published {@meta["date"]}
         </div>
-        <div class="prose self-center md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] p-4 flex flex-col">
+        <div
+          :if={@meta["rank"] != :deck}
+          class="prose self-center md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] p-4 flex flex-col"
+        >
+          {raw(@content)}
+        </div>
+        <div
+          :if={@meta["rank"] == :deck}
+          class="self-center md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] p-4 flex flex-col"
+        >
           {raw(@content)}
         </div>
       </div>

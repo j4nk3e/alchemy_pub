@@ -32,7 +32,7 @@ defmodule AlchemyPub.Engine do
     nil
   end
 
-  defp compile(md) do
+  defp compile(md, is_deck) do
     link_headers = fn {h, attrs, content, meta} ->
       id = urlify(content)
 
@@ -51,6 +51,10 @@ defmodule AlchemyPub.Engine do
           ], meta}}
     end
 
+    page_split = fn {hr, _attrs, content, meta} ->
+      {:replace, {hr, [{"class", "split"}], content, meta}}
+    end
+
     ast =
       Earmark.as_ast!(md,
         pure_links: false,
@@ -60,17 +64,31 @@ defmodule AlchemyPub.Engine do
 
     title = find_h1(ast)
 
+    processors =
+      if is_deck do
+        [{"hr", page_split}]
+      else
+        [{"h2", link_headers}, {"h3", link_headers}]
+      end
+
     postprocessor =
       Earmark.Transform.make_postprocessor(
-        Earmark.Options.make_options!(
-          registered_processors: [{"h2", link_headers}, {"h3", link_headers}]
-        )
+        Earmark.Options.make_options!(registered_processors: processors)
       )
 
-    {title,
-     ast
-     |> Earmark.Transform.map_ast(postprocessor)
-     |> Earmark.transform()}
+    content =
+      ast
+      |> Earmark.Transform.map_ast(postprocessor)
+      |> Earmark.transform()
+
+    content =
+      if is_deck do
+        content |> String.split("<hr class=\"split\">")
+      else
+        content
+      end
+
+    {title, content}
   end
 
   def title(filename, h1, frontmatter) do
@@ -132,7 +150,7 @@ defmodule AlchemyPub.Engine do
           Date.new!(y, m, d)
       end
 
-    {h1, content} = compile(md)
+    {h1, content} = compile(md, is_deck)
     filename = path |> Path.basename() |> Path.rootname()
     title = title(filename, h1, frontmatter)
 

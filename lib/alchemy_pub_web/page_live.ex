@@ -94,6 +94,17 @@ defmodule AlchemyPubWeb.PageLive do
 
     socket =
       case page do
+        {title, :deck, _date, meta, content} ->
+          socket
+          |> assign(
+            page_title: meta |> Map.get("title"),
+            meta: meta,
+            content: paginate(content, params["p"]),
+            title: title,
+            tag: nil,
+            track_valid: true
+          )
+
         {title, _rank, _date, meta, content} ->
           socket
           |> assign(
@@ -165,6 +176,11 @@ defmodule AlchemyPubWeb.PageLive do
     |> Enum.filter(fn [_, _, _, meta] ->
       not (Map.get(meta, "hidden", false) || Map.get(meta, "nobot", false))
     end)
+  end
+
+  defp paginate(content, page) do
+    {page, _} = Integer.parse(page || 0)
+    content |> Enum.at(page)
   end
 
   defp build_content(tag, title, all) do
