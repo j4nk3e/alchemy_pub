@@ -55,6 +55,7 @@ defmodule AlchemyPub.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1"},
       {:bandit, "~> 1.5"},
+      {:qr_code, "~> 3.2"},
       {:yaml_front_matter, "~> 1.0"},
       {:file_system, "~> 1.0"},
       {:earmark, "~> 1.4"},
