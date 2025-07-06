@@ -102,14 +102,14 @@
             <div class="rounded-box border-1">
               <div
                 class="bg-contain aspect-square w-full mix-blend-difference invert"
-                style={"background-image:url('/qr/#{@url}');"}
+                style={"background-image:url('/qr?path=#{@url}');"}
               >
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div id="top" class="flex flex-col gap-0.5 pb-8">
+      <div id="top" class="flex flex-col gap-0.5">
         <div
           :if={Map.get(@meta, "header", true)}
           class="flex flex-row gap-2 p-2 justify-end content-center bg-base-200 rounded-lg"
@@ -138,9 +138,20 @@
         </div>
         <div
           :if={@meta["rank"] == :deck}
-          class="self-center md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] p-4 flex flex-col"
+          id="deck"
+          phx-update="stream"
+          class="relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10"
         >
-          {raw(@content)}
+          <div
+            :for={{id, content} <- @streams.deck}
+            id={id}
+            class="p-4 absolute top-0 left-0 bg-base-200 border-1 border-accent rounded-box w-full
+             h-full duration-500 ease-in-out transform transition translate-y-1/2 opacity-0"
+            phx-mounted={JS.remove_class("translate-y-1/2", to: "##{id}") |>
+            JS.remove_class("opacity-0", to: "##{id}")}
+          >
+            {raw(content.content)}
+          </div>
         </div>
       </div>
     </div>

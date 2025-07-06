@@ -46,8 +46,8 @@ defmodule AlchemyPub.Engine do
                {"href", "##{id}"},
                {"class", "mr-1 opacity-20 hover:opacity-60 no-underline"},
                {"aria-hidden", "true"},
-               {"tabindex", "-1"}
-             ], ["#"], meta}
+               {"tabindex", "-1"},
+             ], ["#"], meta},
           ], meta}}
     end
 

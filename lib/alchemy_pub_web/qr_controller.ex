@@ -3,10 +3,10 @@ defmodule AlchemyPubWeb.QrController do
 
   alias QRCode.Render.SvgSettings
 
-  def index(conn, %{"data" => data}) do
+  def index(conn, %{"path" => path}) do
     conn
     |> put_resp_content_type("image/svg+xml")
-    |> send_resp(200, data |> List.wrap() |> Enum.join("/") |> qr)
+    |> send_resp(200, path |> qr())
   end
 
   defp qr(s) do
@@ -14,7 +14,7 @@ defmodule AlchemyPubWeb.QrController do
       background_opacity: 1,
       qrcode_color: "#000000",
       flatten: true,
-      structure: :minify
+      structure: :minify,
     }
 
     {:ok, qr} =

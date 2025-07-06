@@ -25,22 +25,18 @@ config :alchemy_pub, AlchemyPubWeb.Endpoint,
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: AlchemyPubWeb.ErrorHTML, json: AlchemyPubWeb.ErrorJSON],
-    layout: false
+    layout: false,
   ],
   pubsub_server: AlchemyPub.PubSub,
   live_view: [signing_salt: "pWWRs/C1"]
-
-config :alchemy_pub,
-  ecto_repos: [AlchemyPub.Repo]
-
-config :mime, :types, %{
-  "image/svg+xml" => ["svg"]
-}
 
 config :alchemy_pub, :copyright,
   name: "AlchemyPub",
   url: "https://creativecommons.org/licenses/by/4.0/",
   license: "CC BY 4.0"
+
+config :alchemy_pub,
+  ecto_repos: [AlchemyPub.Repo]
 
 # Configure esbuild (the version is required)
 config :esbuild,
@@ -49,13 +45,17 @@ config :esbuild,
     args:
       ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)},
   ]
 
 # Configures Elixir's Logger
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+config :mime, :types, %{
+  "image/svg+xml" => ["svg"],
+}
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
@@ -70,7 +70,7 @@ config :tailwind,
     ),
     # Import environment specific config. This must remain at the bottom
     # of this file so it overrides the configuration defined above.
-    cd: Path.expand("..", __DIR__)
+    cd: Path.expand("..", __DIR__),
   ]
 
 import_config "#{config_env()}.exs"

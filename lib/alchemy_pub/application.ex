@@ -19,7 +19,7 @@ defmodule AlchemyPub.Application do
       AlchemyPub.Presence,
       AlchemyPub.Repo,
       # Start to serve requests, typically the last entry
-      AlchemyPubWeb.Endpoint
+      AlchemyPubWeb.Endpoint,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -19,7 +19,7 @@ defmodule AlchemyPubWeb.PageLive do
       Presence.track(self(), @topic, socket.id, %{
         joined: DateTime.utc_now(),
         source: referrer,
-        session: session_id
+        session: session_id,
       })
     end
 
@@ -31,12 +31,14 @@ defmodule AlchemyPubWeb.PageLive do
        copyright: %{
          name: Keyword.get(copyright, :name),
          url: Keyword.get(copyright, :url),
-         license: Keyword.get(copyright, :license)
+         license: Keyword.get(copyright, :license),
        },
        post_title: "Loading",
        viewers: 0,
        track_valid: false
-     )}
+     )
+     |> stream_configure(:deck, [])
+     |> stream(:deck, [])}
   end
 
   @impl true
@@ -50,6 +52,27 @@ defmodule AlchemyPubWeb.PageLive do
     end)
 
     {:noreply, socket |> assign(url: uri)}
+  end
+
+  @impl true
+  def handle_event("key", param, socket) do
+    p = get_in(socket.assigns.subpage) || 0
+
+    p =
+      case param do
+        %{"key" => "ArrowRight"} -> p + 1
+        %{"key" => "ArrowLeft"} -> max(0, p - 1)
+        _ -> p
+      end
+
+    socket =
+      if socket.assigns.meta["rank"] == :deck do
+        socket |> push_patch(to: "/#{socket.assigns.title}?p=#{p}", replace: true)
+      else
+        socket
+      end
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -92,6 +115,8 @@ defmodule AlchemyPubWeb.PageLive do
         m -> m
       end
 
+    subpage = match_subpage(params)
+
     socket =
       case page do
         {title, :deck, _date, meta, content} ->
@@ -99,11 +124,13 @@ defmodule AlchemyPubWeb.PageLive do
           |> assign(
             page_title: meta |> Map.get("title"),
             meta: meta,
-            content: paginate(content, params["p"]),
             title: title,
+            content: content,
             tag: nil,
-            track_valid: true
+            track_valid: true,
+            subpage: subpage
           )
+          |> stream_insert(:deck, paginate(content, subpage), at: -1, limit: -2)
 
         {title, _rank, _date, meta, content} ->
           socket
@@ -179,8 +206,7 @@ defmodule AlchemyPubWeb.PageLive do
   end
 
   defp paginate(content, page) do
-    {page, _} = Integer.parse(page || 0)
-    content |> Enum.at(page)
+    %{id: "deck-page-#{Ulid.generate()}", content: content |> Enum.at(page)}
   end
 
   defp build_content(tag, title, all) do
@@ -205,6 +231,15 @@ defmodule AlchemyPubWeb.PageLive do
           )) <> "</ul>") ||
       "Tag not found"
   end
+
+  defp match_subpage(%{"p" => p}) do
+    case Integer.parse(p) do
+      {page, _} -> page
+      _ -> 0
+    end
+  end
+
+  defp match_subpage(_), do: 0
 
   defp match_params(params, pages) do
     case params do

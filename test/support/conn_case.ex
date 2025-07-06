@@ -13,6 +13,7 @@ defmodule AlchemyPubWeb.ConnCase do
   using do
     quote do
       use AlchemyPubWeb, :verified_routes
+
       import AlchemyPubWeb.ConnCase
       import Phoenix.ConnTest
       import Plug.Conn

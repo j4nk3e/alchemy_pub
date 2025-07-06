@@ -50,7 +50,7 @@ defmodule AlchemyPubWeb.Router do
     live_dashboard("/dashboard",
       metrics: AlchemyPubWeb.Telemetry,
       additional_pages: [
-        analytics: AlchemyPubWeb.DevAnalytics
+        analytics: AlchemyPubWeb.DevAnalytics,
       ]
     )
 
@@ -63,9 +63,9 @@ defmodule AlchemyPubWeb.Router do
     get "/feed.rss", FeedController, :index
   end
 
-  scope "/", AlchemyPubWeb do
+  scope "/qr", AlchemyPubWeb do
     pipe_through(:svg)
-    get("/qr/*data", QrController, :index)
+    get("/", QrController, :index)
   end
 
   scope "/", AlchemyPubWeb do
