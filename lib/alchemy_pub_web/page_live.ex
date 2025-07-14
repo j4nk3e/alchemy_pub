@@ -36,7 +36,8 @@ defmodule AlchemyPubWeb.PageLive do
        post_title: "Loading",
        viewers: 0,
        track_valid: false,
-       subpage: nil
+       subpage: nil,
+       fullscreen: false
      )
      |> stream_configure(:deck, [])
      |> stream(:deck, [])}
@@ -58,17 +59,23 @@ defmodule AlchemyPubWeb.PageLive do
   @impl true
   def handle_event("key", param, socket) do
     p = get_in(socket.assigns.subpage) || 0
+    f = get_in(socket.assigns.fullscreen) || false
 
-    p =
-      case param do
-        %{"key" => "ArrowRight"} -> p + 1
-        %{"key" => "ArrowLeft"} -> max(0, p - 1)
+    params =
+      case param["key"] do
+        "f" -> %{p: p, f: not f}
+        "ArrowRight" -> %{p: p + 1, f: f}
+        "ArrowLeft" -> %{p: max(0, p - 1), f: f}
         _ -> nil
       end
 
     socket =
-      if p && socket.assigns.meta["rank"] == :deck do
-        socket |> push_patch(to: "/#{socket.assigns.title}?p=#{p}", replace: true)
+      if params && socket.assigns.meta["rank"] == :deck do
+        socket
+        |> push_patch(
+          to: "/#{socket.assigns.title}?p=#{params[:p]}&f=#{params[:f]}",
+          replace: true
+        )
       else
         socket
       end
@@ -137,7 +144,8 @@ defmodule AlchemyPubWeb.PageLive do
             content: "",
             tag: nil,
             track_valid: true,
-            subpage: subpage
+            subpage: subpage,
+            fullscreen: params["f"] == "true"
           )
           |> stream_insert(:deck, paginate(content, subpage, direction), at: -1, limit: -2)
 
