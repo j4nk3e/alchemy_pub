@@ -37,7 +37,8 @@ defmodule AlchemyPubWeb.PageLive do
        viewers: 0,
        track_valid: false,
        subpage: nil,
-       fullscreen: false
+       fullscreen: false,
+       mute: false
      )
      |> stream_configure(:deck, [])
      |> stream(:deck, [])}
@@ -60,12 +61,15 @@ defmodule AlchemyPubWeb.PageLive do
   def handle_event("key", param, socket) do
     p = get_in(socket.assigns.subpage) || 0
     f = get_in(socket.assigns.fullscreen) || false
+    m = get_in(socket.assigns.mute) || false
+    params = %{p: p, f: f, m: m}
 
     params =
       case param["key"] do
-        "f" -> %{p: p, f: not f}
-        "ArrowRight" -> %{p: p + 1, f: f}
-        "ArrowLeft" -> %{p: max(0, p - 1), f: f}
+        "f" -> %{params | f: not f}
+        "m" -> %{params | m: not m}
+        "ArrowRight" -> %{params | p: p + 1}
+        "ArrowLeft" -> %{params | p: max(0, p - 1)}
         _ -> nil
       end
 
@@ -73,7 +77,7 @@ defmodule AlchemyPubWeb.PageLive do
       if params && socket.assigns.meta["rank"] == :deck do
         socket
         |> push_patch(
-          to: "/#{socket.assigns.title}?p=#{params[:p]}&f=#{params[:f]}",
+          to: "/#{socket.assigns.title}?p=#{params[:p]}&f=#{params[:f]}&m=#{params[:m]}",
           replace: true
         )
       else
@@ -136,6 +140,9 @@ defmodule AlchemyPubWeb.PageLive do
               true -> nil
             end
 
+          fullscreen = params["f"] == "true"
+          mute = params["m"] == "true"
+
           socket
           |> assign(
             page_title: meta |> Map.get("title"),
@@ -145,9 +152,10 @@ defmodule AlchemyPubWeb.PageLive do
             tag: nil,
             track_valid: true,
             subpage: subpage,
-            fullscreen: params["f"] == "true"
+            fullscreen: fullscreen,
+            mute: mute
           )
-          |> stream_insert(:deck, paginate(content, subpage, direction), at: -1, limit: -2)
+          |> stream_insert(:deck, paginate(content, subpage, direction, mute), at: -1, limit: -2)
 
         {title, _rank, _date, meta, content} ->
           socket
@@ -222,7 +230,7 @@ defmodule AlchemyPubWeb.PageLive do
     end)
   end
 
-  defp paginate(deck, page, direction) do
+  defp paginate(deck, page, direction, mute) do
     animation =
       case direction do
         :left -> ["-translate-x-1/4", "scale-90", "opacity-0"]
@@ -232,8 +240,18 @@ defmodule AlchemyPubWeb.PageLive do
 
     %{
       id: "deck-page-#{Ulid.generate()}",
-      slide: deck |> Enum.at(page),
-      animation: animation,
+      slide:
+        if mute do
+          ""
+        else
+          deck |> Enum.at(page)
+        end,
+      animation:
+        if mute do
+          ["opacity-0"]
+        else
+          animation
+        end,
     }
   end
 
