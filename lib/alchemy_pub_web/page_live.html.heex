@@ -140,15 +140,15 @@
           :if={@meta["rank"] == :deck}
           id="deck"
           phx-update="stream"
-          class="relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10"
+          class="relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10 deck"
           phx-window-keyup="key"
         >
           <div
             :for={{id, content} <- @streams.deck}
             id={id}
             class={[
-              "p-4 absolute top-0 left-0 bg-base-200 border-1 border-accent rounded-box
-              overflow-hidden w-full h-full duration-250 ease-in-out transform transition",
+              "p-4 absolute top-0 left-0 bg-base-200 border-1 border-accent rounded-box @container
+              grow shrink overflow-hidden w-full h-full duration-250 ease-in-out transform transition",
               content.animation
             ]}
             phx-mounted={remove_animation(content.animation, id)}

@@ -69,14 +69,80 @@
     display: contents;
 }
 
+@layer base {
+    a {
+        overflow-wrap: anywhere;
+    }
+}
+
 @layer components {
     blockquote p {
         @apply text-primary font-semibold;
     }
-}
 
-a {
-    overflow-wrap: anywhere;
+    .deck {
+        h1 {
+            @apply text-[16cqw] text-primary
+        }
+
+        h2 {
+            @apply text-[12cqw] text-secondary
+        }
+
+        h3 {
+            @apply text-[6cqw] text-accent
+        }
+
+        h4 {
+            @apply text-[4cqw] text-info
+        }
+
+        p {
+            @apply text-[3cqw] max-w-[90cqw] flex
+        }
+
+        pre {
+            @apply min-w-[80cqw] p-2 bg-neutral text-base-100 text-[2cqw] rounded border-1 border-info
+        }
+
+        blockquote {
+            @apply min-w-[50cqw] m-[2cqw] p-[2cqw] rounded bg-base-300
+        }
+
+        ul {
+            @apply min-w-[50cqw] list-inside list-disc
+        }
+
+        ol {
+            @apply min-w-[50cqw] list-inside list-decimal
+        }
+
+        li {
+            @apply text-[3cqw]
+        }
+
+        img {
+            @apply grow shrink justify-self-center
+        }
+
+        table {
+            @apply min-w-[50cqw] m-[1cqw] bg-base-300 rounded text-[3cqw]
+        }
+
+        th {
+            @apply px-[2cqw] py-[1cqw]
+        }
+
+        td {
+            @apply px-[2cqw] py-[1cqw]
+        }
+
+        & table {
+            & :where(thead tr, tbody tr:not(:last-child)) {
+                border-bottom: solid var(--color-base-200);
+            }
+        }
+    }
 }
 
 code.hljs {
@@ -264,4 +330,8 @@ code .hljs-addition {
 code .hljs-deletion {
     color: #f38ba8;
     background: rgba(243, 139, 168, 0.15);
+}
+
+[class~="@container"]>*+* {
+    border: 5px solid red !important;
 }
