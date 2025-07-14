@@ -145,16 +145,15 @@
           <div
             :for={{id, content} <- @streams.deck}
             id={id}
-            class="p-4 absolute top-0 left-0 bg-base-200 border-1 border-accent rounded-box
-              overflow-hidden w-full h-full
-              duration-500 ease-in-out transform transition translate-y-1/2 opacity-0"
-            phx-mounted={
-              JS.remove_class("translate-y-1/2", to: "##{id}")
-              |> JS.remove_class("opacity-0", to: "##{id}")
-            }
+            class={[
+              "p-4 absolute top-0 left-0 bg-base-200 border-1 border-accent rounded-box
+              overflow-hidden w-full h-full duration-250 ease-in-out transform transition",
+              content.animation
+            ]}
+            phx-mounted={remove_animation(content.animation, id)}
           >
             <div class="h-full w-full flex flex-col items-center justify-center">
-              {raw(content.content)}
+              {raw(content.slide)}
             </div>
           </div>
         </div>

@@ -35,7 +35,8 @@ defmodule AlchemyPubWeb.PageLive do
        },
        post_title: "Loading",
        viewers: 0,
-       track_valid: false
+       track_valid: false,
+       subpage: nil
      )
      |> stream_configure(:deck, [])
      |> stream(:deck, [])}
@@ -62,11 +63,11 @@ defmodule AlchemyPubWeb.PageLive do
       case param do
         %{"key" => "ArrowRight"} -> p + 1
         %{"key" => "ArrowLeft"} -> max(0, p - 1)
-        _ -> p
+        _ -> nil
       end
 
     socket =
-      if socket.assigns.meta["rank"] == :deck do
+      if p && socket.assigns.meta["rank"] == :deck do
         socket |> push_patch(to: "/#{socket.assigns.title}?p=#{p}", replace: true)
       else
         socket
@@ -120,17 +121,25 @@ defmodule AlchemyPubWeb.PageLive do
     socket =
       case page do
         {title, :deck, _date, meta, content} ->
+          direction =
+            cond do
+              socket.assigns.subpage == nil -> nil
+              socket.assigns.subpage > subpage -> :left
+              socket.assigns.subpage < subpage -> :right
+              true -> nil
+            end
+
           socket
           |> assign(
             page_title: meta |> Map.get("title"),
             meta: meta,
             title: title,
-            content: content,
+            content: "",
             tag: nil,
             track_valid: true,
             subpage: subpage
           )
-          |> stream_insert(:deck, paginate(content, subpage), at: -1, limit: -2)
+          |> stream_insert(:deck, paginate(content, subpage, direction), at: -1, limit: -2)
 
         {title, _rank, _date, meta, content} ->
           socket
@@ -205,8 +214,19 @@ defmodule AlchemyPubWeb.PageLive do
     end)
   end
 
-  defp paginate(content, page) do
-    %{id: "deck-page-#{Ulid.generate()}", content: content |> Enum.at(page)}
+  defp paginate(deck, page, direction) do
+    animation =
+      case direction do
+        :left -> ["-translate-x-1/4", "scale-90", "opacity-0"]
+        :right -> ["translate-x-1/4", "scale-110", "opacity-0"]
+        nil -> []
+      end
+
+    %{
+      id: "deck-page-#{Ulid.generate()}",
+      slide: deck |> Enum.at(page),
+      animation: animation,
+    }
   end
 
   defp build_content(tag, title, all) do
@@ -265,5 +285,11 @@ defmodule AlchemyPubWeb.PageLive do
     |> Enum.map(fn t -> {Engine.urlify(t), t} end)
     |> Enum.sort()
     |> Enum.uniq_by(fn {t, _} -> t end)
+  end
+
+  defp remove_animation(js \\ %JS{}, classes, id) do
+    Enum.reduce(classes, js, fn c, js ->
+      JS.remove_class(js, c, to: "##{id}")
+    end)
   end
 end
