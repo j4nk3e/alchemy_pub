@@ -139,6 +139,7 @@ defmodule AlchemyPub.Engine do
     is_deck = frontmatter |> Map.get("deck", false)
     rank = frontmatter |> Map.get("rank", (is_deck && :deck) || nil)
     tags = frontmatter |> Map.get("tags", []) |> List.wrap()
+    qr = frontmatter |> Map.get("qr", rank == :deck)
 
     date =
       with d when is_binary(d) <- frontmatter |> Map.get("date"),
@@ -156,7 +157,13 @@ defmodule AlchemyPub.Engine do
 
     meta =
       frontmatter
-      |> Map.merge(%{"title" => title, "date" => date, "rank" => rank, "tags" => tags})
+      |> Map.merge(%{
+        "title" => title,
+        "date" => date,
+        "rank" => rank,
+        "tags" => tags,
+        "qr" => qr,
+      })
 
     post = {urlify(filename), rank, date, meta, content}
     :ets.insert(@ets, post)

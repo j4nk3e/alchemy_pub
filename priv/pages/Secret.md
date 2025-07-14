@@ -1,6 +1,7 @@
 ---
 rank: 1
 hidden: true
+qr: true
 ---
 
 # Secret
