@@ -141,6 +141,7 @@
           id="deck"
           phx-update="stream"
           class="relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10"
+          phx-window-keyup="key"
         >
           <div
             :for={{id, content} <- @streams.deck}
