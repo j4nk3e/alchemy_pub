@@ -58,6 +58,7 @@
 @source inline("print:hidden");
 @source inline("print:border-0");
 @source inline("print:w-[50rem]");
+@source inline("print:break-after-page");
 
 /* Add variants based on LiveView classes */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);

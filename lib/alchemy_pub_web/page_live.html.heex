@@ -112,7 +112,7 @@
       <div id="top" class="flex flex-col gap-0.5">
         <div
           :if={Map.get(@meta, "header", true)}
-          class="flex flex-row gap-2 p-2 justify-end content-center bg-base-200 rounded-lg"
+          class="flex flex-row gap-2 p-2 justify-end content-center bg-base-200 rounded-lg print:hidden"
         >
           <div class="text-xl font-extrabold content-center">{@page_title}</div>
           <img
@@ -141,10 +141,10 @@
           id="deck"
           phx-update="stream"
           class={
-            if @fullscreen do
-              "absolute top-0 left-0 w-full h-full z-1 deck overflow-hidden"
-            else
-              "relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10 deck"
+            cond do
+              @all_pages -> "flex flex-col md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] deck"
+              @fullscreen -> "absolute top-0 left-0 w-full h-full z-1 deck overflow-hidden"
+              true -> "relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10 deck"
             end
           }
           phx-window-keyup="key"
@@ -154,9 +154,10 @@
             :for={{id, content} <- @streams.deck}
             id={id}
             class={[
-              "p-4 absolute top-0 left-0 bg-base-200 border-1 border-accent rounded-box",
-              "overflow-hidden w-full h-full duration-250 ease-in-out transform transition",
+              "p-4 bg-base-200 border-1 border-accent rounded-box",
+              "overflow-hidden duration-250 ease-in-out transform transition",
               "@container",
+              if @all_pages do "aspect-16/10 print:break-after-page" else "w-full h-full absolute top-0 left-0" end,
               content.animation
             ]}
             phx-mounted={remove_animation(content.animation, id)}
@@ -166,8 +167,9 @@
             </div>
           </div>
         </div>
-        <div :if={@meta["rank"] == :deck} class="flex flex-row justify-between">
+        <div :if={@meta["rank"] == :deck && !@all_pages} class="flex flex-row justify-between">
           <div class="btn btn-ghost" phx-click="key" phx-value-key="ArrowLeft">Prev</div>
+          <div class="btn btn-ghost" phx-click="key" phx-value-key="f">Full</div>
           <div class="btn btn-ghost" phx-click="key" phx-value-key="ArrowRight">Next</div>
         </div>
       </div>

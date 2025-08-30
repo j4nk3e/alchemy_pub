@@ -57,27 +57,32 @@ defmodule AlchemyPubWeb.PageLive do
     {:noreply, socket |> assign(url: uri)}
   end
 
+  defp apply_keypress(param, %{a: a, f: f, m: m, p: p} = params) do
+    case param["key"] do
+      "a" -> %{params | a: not a}
+      "f" -> %{params | f: not f}
+      "m" -> %{params | m: not m}
+      "ArrowRight" -> %{params | p: p + 1}
+      "ArrowLeft" -> %{params | p: max(0, p - 1)}
+      "Escape" -> %{params | f: false}
+      _ -> params
+    end
+  end
+
   @impl true
   def handle_event("key", param, socket) do
     p = get_in(socket.assigns.subpage) || 0
     f = get_in(socket.assigns.fullscreen) || false
     m = get_in(socket.assigns.mute) || false
-    params = %{p: p, f: f, m: m}
+    a = get_in(socket.assigns.all_pages) || false
 
-    params =
-      case param["key"] do
-        "f" -> %{params | f: not f}
-        "m" -> %{params | m: not m}
-        "ArrowRight" -> %{params | p: p + 1}
-        "ArrowLeft" -> %{params | p: max(0, p - 1)}
-        _ -> nil
-      end
+    params = apply_keypress(param, %{a: a, p: p, f: f, m: m})
 
     socket =
       if params && socket.assigns.meta["rank"] == :deck do
         socket
         |> push_patch(
-          to: "/#{socket.assigns.title}?p=#{params[:p]}&f=#{params[:f]}&m=#{params[:m]}",
+          to: "/#{socket.assigns.title}?#{URI.encode_query(params)}",
           replace: true
         )
       else
@@ -142,20 +147,44 @@ defmodule AlchemyPubWeb.PageLive do
 
           fullscreen = params["f"] == "true"
           mute = params["m"] == "true"
+          all_pages = params["a"] == "true"
 
-          socket
-          |> assign(
-            page_title: meta |> Map.get("title"),
-            meta: meta,
-            title: title,
-            content: "",
-            tag: nil,
-            track_valid: true,
-            subpage: subpage,
-            fullscreen: fullscreen,
-            mute: mute
-          )
-          |> stream_insert(:deck, paginate(content, subpage, direction, mute), at: -1, limit: -2)
+          socket =
+            socket
+            |> assign(
+              page_title: meta |> Map.get("title"),
+              meta: meta,
+              title: title,
+              content: "",
+              tag: nil,
+              track_valid: true,
+              subpage: subpage,
+              fullscreen: fullscreen && !all_pages,
+              mute: mute && !all_pages,
+              all_pages: all_pages
+            )
+
+          if all_pages do
+            Enum.reduce(content, socket, fn p, socket ->
+              stream_insert(
+                socket,
+                :deck,
+                %{
+                  id: "deck-page-#{Ulid.generate()}",
+                  slide: p,
+                  animation: [],
+                },
+                at: -1,
+                limit: -Enum.count(content)
+              )
+            end)
+          else
+            socket
+            |> stream_insert(:deck, paginate(content, subpage, direction, mute),
+              at: -1,
+              limit: -2
+            )
+          end
 
         {title, _rank, _date, meta, content} ->
           socket
