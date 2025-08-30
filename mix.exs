@@ -40,9 +40,9 @@ defmodule AlchemyPub.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.8.0-rc.3", override: true},
+      {:phoenix, "~> 1.8", override: true},
       {:phoenix_html, "~> 4.1"},
-      {:phoenix_live_view, "~> 1.0", override: true},
+      {:phoenix_live_view, "~> 1.1", override: true},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:tailwind, "~> 0.3"},
       {:heroicons,
@@ -60,7 +60,7 @@ defmodule AlchemyPub.MixProject do
       {:file_system, "~> 1.0"},
       {:earmark, "~> 1.4"},
       {:ecto_sqlite3, "~> 0.17"},
-      {:ulid, "~> 0.2"},
+      {:ulid, github: "j4nk3e/ulid"},
       {:contex, "~> 0.5"},
       {:calendar, "~> 1.0"},
       {:credo, "~> 1.7", only: :dev},
