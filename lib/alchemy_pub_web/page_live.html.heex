@@ -142,9 +142,14 @@
           phx-update="stream"
           class={
             cond do
-              @all_pages -> "flex flex-col md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] deck"
-              @fullscreen -> "absolute top-0 left-0 w-full h-full z-1 deck overflow-hidden"
-              true -> "relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10 deck"
+              @all_pages ->
+                "flex flex-col md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] deck"
+
+              @fullscreen ->
+                "absolute top-0 left-0 w-full h-full z-1 deck overflow-hidden"
+
+              true ->
+                "relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10 deck"
             end
           }
           phx-window-keyup="key"
@@ -157,13 +162,24 @@
               "p-4 bg-base-200 border-1 border-accent rounded-box",
               "overflow-hidden duration-250 ease-in-out transform transition",
               "@container",
-              if @all_pages do "aspect-16/10 print:break-after-page" else "w-full h-full absolute top-0 left-0" end,
+              if @all_pages do
+                "aspect-16/10 print:break-after-page"
+              else
+                "w-full h-full absolute top-0 left-0"
+              end,
               content.animation
             ]}
             phx-mounted={remove_animation(content.animation, id)}
           >
             <div class="h-full w-full flex flex-col items-center justify-center">
               {raw(content.slide)}
+              <progress
+                :if={!@all_pages && @subpage > 0}
+                class="progress progress-accent absolute bottom-0 w-full"
+                value={@subpage}
+                max={@page_count - 1}
+              >
+              </progress>
             </div>
           </div>
         </div>

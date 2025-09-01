@@ -148,6 +148,7 @@ defmodule AlchemyPubWeb.PageLive do
           fullscreen = params["f"] == "true"
           mute = params["m"] == "true"
           all_pages = params["a"] == "true"
+          page_count = Enum.count(content)
 
           socket =
             socket
@@ -161,7 +162,8 @@ defmodule AlchemyPubWeb.PageLive do
               subpage: subpage,
               fullscreen: fullscreen && !all_pages,
               mute: mute && !all_pages,
-              all_pages: all_pages
+              all_pages: all_pages,
+              page_count: page_count
             )
 
           if all_pages do
@@ -175,7 +177,7 @@ defmodule AlchemyPubWeb.PageLive do
                   animation: [],
                 },
                 at: -1,
-                limit: -Enum.count(content)
+                limit: -page_count
               )
             end)
           else
