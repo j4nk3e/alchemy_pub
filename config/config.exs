@@ -36,6 +36,9 @@ config :alchemy_pub, :copyright,
   license: "CC BY 4.0"
 
 config :alchemy_pub,
+  admin_id: System.get_env("ADMIN_ID")
+
+config :alchemy_pub,
   ecto_repos: [AlchemyPub.Repo]
 
 # Configure esbuild (the version is required)

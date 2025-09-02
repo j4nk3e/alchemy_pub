@@ -11,7 +11,7 @@ defmodule AlchemyPubWeb.PageLive do
   defp active_class, do: "menu-active"
 
   @impl true
-  def mount(_params, %{"session_id" => session_id, "referrer" => referrer}, socket) do
+  def mount(_params, %{"session_id" => session_id, "referrer" => referrer} = session, socket) do
     if connected?(socket) do
       PubSub.subscribe(AlchemyPub.PubSub, "page_update")
       PubSub.subscribe(AlchemyPub.PubSub, @topic)
@@ -24,6 +24,7 @@ defmodule AlchemyPubWeb.PageLive do
     end
 
     copyright = Application.get_env(:alchemy_pub, :copyright)
+    admin_id = Application.get_env(:alchemy_pub, :admin_id)
 
     {:ok,
      socket
@@ -38,7 +39,8 @@ defmodule AlchemyPubWeb.PageLive do
        track_valid: false,
        subpage: nil,
        fullscreen: false,
-       mute: false
+       mute: false,
+       admin: admin_id && session["admin_id"] == admin_id
      )
      |> stream_configure(:deck, [])
      |> stream(:deck, [])}

@@ -92,7 +92,8 @@
               <ul>
                 <li class="menu-title">
                   <div class="flex flex-row justify-between">
-                    Online: <span class="badge badge-sm badge-success">{@viewers}</span>
+                    Online: <span :if={@admin} class="badge badge-sm badge-warning">Admin</span>
+                    <span class="badge badge-sm badge-success">{@viewers}</span>
                   </div>
                 </li>
               </ul>
