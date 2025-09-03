@@ -13,6 +13,7 @@ defmodule AlchemyPub.Presence do
     for {_, %{metas: metas}} <- leaves,
         %{
           session: session,
+          admin: admin,
           valid: valid,
           path: path,
           source: source,
@@ -28,6 +29,7 @@ defmodule AlchemyPub.Presence do
         path,
         source,
         session,
+        admin,
         duration,
         duration_total
       )

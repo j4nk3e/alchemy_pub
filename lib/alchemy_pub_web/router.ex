@@ -39,9 +39,14 @@ defmodule AlchemyPubWeb.Router do
     Plug.BasicAuth.basic_auth(conn, username: username, password: password)
   end
 
+  def set_admin_cookie(conn, _opts) do
+    admin_id = Application.get_env(:alchemy_pub, :admin_id)
+    Plug.Conn.put_resp_cookie(conn, "admin_id", admin_id, http_only: true)
+  end
+
   @auth_pipeline (case(Mix.env()) do
-                    :prod -> [:browser, :require_basic_auth]
-                    env when env in [:dev, :test] -> :browser
+                    :prod -> [:browser, :require_basic_auth, :set_admin_cookie]
+                    env when env in [:dev, :test] -> [:browser, :set_admin_cookie]
                   end)
 
   scope "/dev" do

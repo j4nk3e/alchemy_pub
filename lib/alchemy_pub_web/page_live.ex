@@ -12,6 +12,9 @@ defmodule AlchemyPubWeb.PageLive do
 
   @impl true
   def mount(_params, %{"session_id" => session_id, "referrer" => referrer} = session, socket) do
+    admin_id = Application.get_env(:alchemy_pub, :admin_id)
+    admin = admin_id && session["admin_id"] == admin_id
+
     if connected?(socket) do
       PubSub.subscribe(AlchemyPub.PubSub, "page_update")
       PubSub.subscribe(AlchemyPub.PubSub, @topic)
@@ -20,11 +23,11 @@ defmodule AlchemyPubWeb.PageLive do
         joined: DateTime.utc_now(),
         source: referrer,
         session: session_id,
+        admin: admin,
       })
     end
 
     copyright = Application.get_env(:alchemy_pub, :copyright)
-    admin_id = Application.get_env(:alchemy_pub, :admin_id)
 
     {:ok,
      socket
@@ -40,7 +43,7 @@ defmodule AlchemyPubWeb.PageLive do
        subpage: nil,
        fullscreen: false,
        mute: false,
-       admin: admin_id && session["admin_id"] == admin_id
+       admin: admin
      )
      |> stream_configure(:deck, [])
      |> stream(:deck, [])}

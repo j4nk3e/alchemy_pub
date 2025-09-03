@@ -9,6 +9,7 @@ defmodule AlchemyPub.Repo.Visit do
   schema "visit" do
     field(:valid, :boolean)
     field(:session, :string)
+    field(:admin, :boolean)
     field(:path, :string)
     field(:source, :string)
     field(:duration, :integer)
@@ -18,13 +19,14 @@ defmodule AlchemyPub.Repo.Visit do
     timestamps()
   end
 
-  def record(valid, path, source, session_id, duration, duration_total) do
+  def record(valid, path, source, session_id, admin, duration, duration_total) do
     now = DateTime.utc_now()
     date = now |> DateTime.to_date() |> Date.to_string()
 
     %Visit{
       valid: valid,
       session: session_id,
+      admin: admin,
       path: path,
       source: source,
       duration: duration,
@@ -36,6 +38,6 @@ defmodule AlchemyPub.Repo.Visit do
   end
 
   def fetch(date) do
-    Repo.all(from(v in Visit, where: v.date == ^to_string(date) and v.valid))
+    Repo.all(from(v in Visit, where: v.date == ^to_string(date) and v.valid and not v.admin))
   end
 end
