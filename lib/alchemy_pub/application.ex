@@ -18,6 +18,8 @@ defmodule AlchemyPub.Application do
       {AlchemyPub.Engine, base_path: "priv/pages"},
       AlchemyPub.Presence,
       AlchemyPub.Repo,
+      {Registry, [keys: :unique, name: AlchemyPub.Registry]},
+      {DynamicSupervisor, strategy: :one_for_one, name: AlchemyPub.DynamicSupervisor},
       # Start to serve requests, typically the last entry
       AlchemyPubWeb.Endpoint,
     ]
