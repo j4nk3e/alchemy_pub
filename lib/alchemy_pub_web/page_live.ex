@@ -12,8 +12,8 @@ defmodule AlchemyPubWeb.PageLive do
 
   @impl true
   def mount(_params, %{"session_id" => session_id, "referrer" => referrer} = session, socket) do
-    admin_id = Application.get_env(:alchemy_pub, :admin_id)
-    admin = admin_id && session["admin_id"] == admin_id
+    admin_secret = Application.get_env(:alchemy_pub, :admin_secret)
+    admin = admin_secret && session["admin_secret"] == admin_secret
 
     if connected?(socket) do
       PubSub.subscribe(AlchemyPub.PubSub, "page_update")

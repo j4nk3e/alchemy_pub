@@ -36,7 +36,7 @@ config :alchemy_pub, :copyright,
   license: "CC BY 4.0"
 
 config :alchemy_pub,
-  admin_id: System.get_env("ADMIN_ID")
+  admin_secret: System.get_env("ADMIN_SECRET")
 
 config :alchemy_pub,
   ecto_repos: [AlchemyPub.Repo]

@@ -40,8 +40,8 @@ defmodule AlchemyPubWeb.Router do
   end
 
   def set_admin_cookie(conn, _opts) do
-    admin_id = Application.get_env(:alchemy_pub, :admin_id)
-    Plug.Conn.put_resp_cookie(conn, "admin_id", admin_id, http_only: true)
+    admin_secret = Application.get_env(:alchemy_pub, :admin_secret)
+    Plug.Conn.put_resp_cookie(conn, "admin_secret", admin_secret, http_only: true)
   end
 
   @auth_pipeline (case(Mix.env()) do
