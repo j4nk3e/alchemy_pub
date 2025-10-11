@@ -55,7 +55,7 @@ defmodule AlchemyPubWeb.Router do
     live_dashboard("/dashboard",
       metrics: AlchemyPubWeb.Telemetry,
       additional_pages: [
-        analytics: AlchemyPubWeb.DevAnalytics,
+        analytics: AlchemyPubWeb.DevAnalytics
       ]
     )
 

@@ -46,8 +46,8 @@ defmodule AlchemyPub.Engine do
                {"href", "##{id}"},
                {"class", "mr-1 opacity-20 hover:opacity-60 no-underline"},
                {"aria-hidden", "true"},
-               {"tabindex", "-1"},
-             ], ["#"], meta},
+               {"tabindex", "-1"}
+             ], ["#"], meta}
           ], meta}}
     end
 
@@ -154,6 +154,12 @@ defmodule AlchemyPub.Engine do
     {h1, content} = compile(md, is_deck)
     filename = path |> Path.basename() |> Path.rootname()
     title = title(filename, h1, frontmatter)
+    url = urlify(filename)
+
+    if is_deck do
+      AlchemyPub.DeckSupervisor.remove_child(url)
+      AlchemyPub.DeckSupervisor.add_child({url, length(content)})
+    end
 
     meta =
       frontmatter
@@ -162,10 +168,10 @@ defmodule AlchemyPub.Engine do
         "date" => date,
         "rank" => rank,
         "tags" => tags,
-        "qr" => qr,
+        "qr" => qr
       })
 
-    post = {urlify(filename), rank, date, meta, content}
+    post = {url, rank, date, meta, content}
     :ets.insert(@ets, post)
     post
   end

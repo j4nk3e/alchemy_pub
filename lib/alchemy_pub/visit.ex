@@ -32,7 +32,7 @@ defmodule AlchemyPub.Repo.Visit do
       duration: duration,
       duration_total: duration_total,
       date: date,
-      hour: now.hour,
+      hour: now.hour
     }
     |> Repo.insert()
   end

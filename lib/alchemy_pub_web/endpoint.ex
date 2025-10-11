@@ -11,7 +11,7 @@ defmodule AlchemyPubWeb.Endpoint do
     store: :cookie,
     key: "_alchemy_pub_key",
     signing_salt: "1URcYgso",
-    same_site: "Lax",
+    same_site: "Lax"
   ]
 
   socket "/live", Socket,

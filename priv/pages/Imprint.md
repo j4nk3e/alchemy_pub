@@ -1,5 +1,5 @@
 ---
-rank: 1
+rank: 99
 icon: scale
 nobot: true
 ---

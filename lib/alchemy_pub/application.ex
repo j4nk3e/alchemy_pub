@@ -15,13 +15,13 @@ defmodule AlchemyPub.Application do
       {Finch, name: AlchemyPub.Finch},
       # Start a worker by calling: AlchemyPub.Worker.start_link(arg)
       # {AlchemyPub.Worker, arg},
+      {Registry, [keys: :unique, name: AlchemyPub.Registry]},
+      {DynamicSupervisor, strategy: :one_for_one, name: AlchemyPub.DeckSupervisor},
       {AlchemyPub.Engine, base_path: "priv/pages"},
       AlchemyPub.Presence,
       AlchemyPub.Repo,
-      {Registry, [keys: :unique, name: AlchemyPub.Registry]},
-      {DynamicSupervisor, strategy: :one_for_one, name: AlchemyPub.DynamicSupervisor},
       # Start to serve requests, typically the last entry
-      AlchemyPubWeb.Endpoint,
+      AlchemyPubWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

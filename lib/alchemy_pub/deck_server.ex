@@ -15,9 +15,10 @@ defmodule AlchemyPub.DeckSupervisor do
   end
 
   def remove_child(name) when name |> is_binary() do
-    [{pid, _}] = Registry.lookup(AlchemyPub.Registry, name)
-    :ok = DynamicSupervisor.terminate_child(__MODULE__, pid)
-    Registry.unregister(AlchemyPub.Registry, name)
+    for {pid, _} <- Registry.lookup(AlchemyPub.Registry, name) do
+      :ok = DynamicSupervisor.terminate_child(__MODULE__, pid)
+      Registry.unregister(AlchemyPub.Registry, name)
+    end
   end
 
   def child_process(name), do: {:via, Registry, {AlchemyPub.Registry, name}}
@@ -44,20 +45,29 @@ defmodule AlchemyPub.DeckServer do
     GenServer.call({:via, Registry, {AlchemyPub.Registry, name}}, :get_page)
   end
 
+  def get_count(name) do
+    GenServer.call({:via, Registry, {AlchemyPub.Registry, name}}, :get_count)
+  end
+
   @impl true
   def init(name: {:via, Registry, {AlchemyPub.Registry, name}}, pages: pages) do
-    {:ok, %{%DeckState{} | name: name, pages: pages}}
+    {:ok, %{%DeckState{} | name: name, pages: pages, slide: pages - 1}}
   end
 
   @impl true
   def handle_call({:page, page}, _from, state) do
     new_state = %{state | slide: min(state.pages - 1, max(0, page))}
-    PubSub.broadcast(AlchemyPub.PubSub, new_state.name, new_state)
+    PubSub.broadcast(AlchemyPub.PubSub, "deck_state", new_state)
     {:reply, new_state.slide, new_state}
   end
 
   @impl true
   def handle_call(:get_page, _from, state) do
     {:reply, state.slide, state}
+  end
+
+  @impl true
+  def handle_call(:get_count, _from, state) do
+    {:reply, state.pages, state}
   end
 end

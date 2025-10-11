@@ -16,6 +16,7 @@
    Make sure to look at the daisyUI changelog: https://daisyui.com/docs/changelog/ */
 @plugin "../vendor/daisyui" {}
 
+/* whitelisted classes */
 @source inline("mr-1");
 @source inline("mb-2");
 @source inline("pl-2");
@@ -24,18 +25,6 @@
 @source inline("no-underline");
 @source inline("bg-accent");
 @source inline("accent");
-@source inline("hero-megaphone");
-@source inline("hero-newspaper");
-@source inline("hero-home-modern");
-@source inline("hero-scale");
-@source inline("hero-beaker");
-@source inline("hero-document");
-@source inline("hero-identification");
-@source inline("hero-musical-note");
-@source inline("hero-code-bracket");
-@source inline("hero-envelope");
-@source inline("hero-globe-alt");
-@source inline("hero-calendar-days");
 @source inline("prose");
 @source inline("not-prose");
 @source inline("whitespace-nowrap");
@@ -59,6 +48,22 @@
 @source inline("print:border-0");
 @source inline("print:w-[50rem]");
 @source inline("print:break-after-page");
+@source inline("kbd");
+
+/* whitelisted heroicons */
+@source inline("hero-megaphone");
+@source inline("hero-newspaper");
+@source inline("hero-home-modern");
+@source inline("hero-scale");
+@source inline("hero-beaker");
+@source inline("hero-document");
+@source inline("hero-identification");
+@source inline("hero-musical-note");
+@source inline("hero-code-bracket");
+@source inline("hero-envelope");
+@source inline("hero-globe-alt");
+@source inline("hero-calendar-days");
+@source inline("hero-presentation-chart-bar");
 
 /* Add variants based on LiveView classes */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
@@ -99,7 +104,7 @@
         }
 
         p {
-            @apply text-[3cqw] max-w-[90cqw] flex
+            @apply text-[3cqw] max-w-[90cqw]
         }
 
         pre {
@@ -120,6 +125,10 @@
 
         li {
             @apply text-[3cqw]
+        }
+
+        a {
+            @apply text-primary link
         }
 
         img {

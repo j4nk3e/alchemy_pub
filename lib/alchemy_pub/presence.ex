@@ -18,7 +18,7 @@ defmodule AlchemyPub.Presence do
           path: path,
           source: source,
           joined: joined,
-          path_joined: path_joined,
+          path_joined: path_joined
         } <- metas do
       now = DateTime.utc_now()
       duration = DateTime.diff(now, path_joined)

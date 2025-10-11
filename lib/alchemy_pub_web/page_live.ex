@@ -1,6 +1,7 @@
 defmodule AlchemyPubWeb.PageLive do
   use AlchemyPubWeb, :live_view
 
+  alias AlchemyPub.DeckServer
   alias AlchemyPub.Engine
   alias AlchemyPub.Presence
   alias Phoenix.PubSub
@@ -18,12 +19,13 @@ defmodule AlchemyPubWeb.PageLive do
     if connected?(socket) do
       PubSub.subscribe(AlchemyPub.PubSub, "page_update")
       PubSub.subscribe(AlchemyPub.PubSub, @topic)
+      PubSub.subscribe(AlchemyPub.PubSub, "deck_state")
 
       Presence.track(self(), @topic, socket.id, %{
         joined: DateTime.utc_now(),
         source: referrer,
         session: session_id,
-        admin: admin,
+        admin: admin
       })
     end
 
@@ -35,14 +37,17 @@ defmodule AlchemyPubWeb.PageLive do
        copyright: %{
          name: Keyword.get(copyright, :name),
          url: Keyword.get(copyright, :url),
-         license: Keyword.get(copyright, :license),
+         license: Keyword.get(copyright, :license)
        },
        post_title: "Loading",
        viewers: 0,
        track_valid: false,
-       subpage: nil,
+       slide: 0,
+       follow: false,
+       page_count: nil,
        fullscreen: false,
        mute: false,
+       all_pages: false,
        admin: admin
      )
      |> stream_configure(:deck, [])
@@ -62,26 +67,40 @@ defmodule AlchemyPubWeb.PageLive do
     {:noreply, socket |> assign(url: uri)}
   end
 
-  defp apply_keypress(param, %{a: a, f: f, m: m, p: p} = params) do
+  defp apply_keypress(param, assigns) do
+    %{a: a, f: f, m: m} = params = get_params(assigns)
+
     case param["key"] do
       "a" -> %{params | a: not a}
       "f" -> %{params | f: not f}
       "m" -> %{params | m: not m}
-      "ArrowRight" -> %{params | p: p + 1}
-      "ArrowLeft" -> %{params | p: max(0, p - 1)}
+      "Home" -> %{params | p: 0}
+      "End" when assigns.admin -> %{params | p: assigns.page_count}
+      "End" -> %{params | p: -1}
+      "ArrowRight" -> %{params | p: assigns.slide + 1}
+      "ArrowLeft" -> %{params | p: max(0, assigns.slide - 1)}
       "Escape" -> %{params | f: false}
       _ -> params
     end
   end
 
+  def get_params(assigns) do
+    p =
+      if assigns.follow do
+        -1
+      else
+        get_in(assigns.slide) || 0
+      end
+
+    f = get_in(assigns.fullscreen) || false
+    m = get_in(assigns.mute) || false
+    a = get_in(assigns.all_pages) || false
+    %{a: a, p: p, f: f, m: m}
+  end
+
   @impl true
   def handle_event("key", param, socket) do
-    p = get_in(socket.assigns.subpage) || 0
-    f = get_in(socket.assigns.fullscreen) || false
-    m = get_in(socket.assigns.mute) || false
-    a = get_in(socket.assigns.all_pages) || false
-
-    params = apply_keypress(param, %{a: a, p: p, f: f, m: m})
+    params = apply_keypress(param, socket.assigns)
 
     socket =
       if params && socket.assigns.meta["rank"] == :deck do
@@ -93,6 +112,17 @@ defmodule AlchemyPubWeb.PageLive do
       else
         socket
       end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("jump", %{"slide" => num}, socket) do
+    params = get_params(socket.assigns) |> Map.merge(%{p: num, f: true, a: false})
+
+    socket =
+      socket
+      |> push_patch(to: "/#{socket.assigns.title}?#{URI.encode_query(params)}", replace: true)
 
     {:noreply, socket}
   end
@@ -124,11 +154,26 @@ defmodule AlchemyPubWeb.PageLive do
     {:noreply, socket |> assign(:viewers, viewers)}
   end
 
+  @impl true
+  def handle_info(%AlchemyPub.DeckState{name: name}, socket) do
+    title = socket.assigns.title
+    params = get_params(socket.assigns)
+
+    socket =
+      if title == name && !socket.assigns.admin && socket.assigns.follow do
+        socket
+        |> push_patch(to: "/#{title}?#{URI.encode_query(%{params | p: -1})}", replace: true)
+      else
+        socket
+      end
+
+    {:noreply, socket}
+  end
+
   defp rebuild(socket, params) do
     all = Engine.find_sorted()
     {pages, posts} = all |> Enum.split_with(fn [_, rank | _] -> rank != nil end)
     pages = pages |> Enum.reverse()
-
     tags = get_unique_tags(all)
 
     page =
@@ -137,61 +182,10 @@ defmodule AlchemyPubWeb.PageLive do
         m -> m
       end
 
-    subpage = match_subpage(params)
-
     socket =
       case page do
         {title, :deck, _date, meta, content} ->
-          direction =
-            cond do
-              socket.assigns.subpage == nil -> nil
-              socket.assigns.subpage > subpage -> :left
-              socket.assigns.subpage < subpage -> :right
-              true -> nil
-            end
-
-          fullscreen = params["f"] == "true"
-          mute = params["m"] == "true"
-          all_pages = params["a"] == "true"
-          page_count = Enum.count(content)
-
-          socket =
-            socket
-            |> assign(
-              page_title: meta |> Map.get("title"),
-              meta: meta,
-              title: title,
-              content: "",
-              tag: nil,
-              track_valid: true,
-              subpage: subpage,
-              fullscreen: fullscreen && !all_pages,
-              mute: mute && !all_pages,
-              all_pages: all_pages,
-              page_count: page_count
-            )
-
-          if all_pages do
-            Enum.reduce(content, socket, fn p, socket ->
-              stream_insert(
-                socket,
-                :deck,
-                %{
-                  id: "deck-page-#{Ulid.generate()}",
-                  slide: p,
-                  animation: [],
-                },
-                at: -1,
-                limit: -page_count
-              )
-            end)
-          else
-            socket
-            |> stream_insert(:deck, paginate(content, subpage, direction, mute),
-              at: -1,
-              limit: -2
-            )
-          end
+          build_deck(socket, params, {title, meta, content})
 
         {title, _rank, _date, meta, content} ->
           socket
@@ -247,6 +241,55 @@ defmodule AlchemyPubWeb.PageLive do
     socket |> assign(posts: posts, pages: pages, decks: decks, tags: tags, params: params)
   end
 
+  defp build_deck(socket, params, {title, meta, content}) do
+    page_count = DeckServer.get_count(title)
+    %{admin: admin, slide: slide} = socket.assigns
+    {slide, direction} = match_slide(params, title, slide, page_count, admin)
+
+    fullscreen = params["f"] == "true"
+    mute = params["m"] == "true"
+    all_pages = params["a"] == "true" && admin
+    follow = params["p"] == "-1" && !admin
+
+    socket =
+      socket
+      |> assign(
+        page_title: meta |> Map.get("title"),
+        meta: meta,
+        title: title,
+        content: "",
+        tag: nil,
+        track_valid: true,
+        slide: slide,
+        follow: follow,
+        fullscreen: fullscreen && !all_pages,
+        mute: mute && !all_pages,
+        all_pages: all_pages,
+        page_count: page_count
+      )
+
+    if all_pages do
+      content
+      |> Enum.with_index()
+      |> Enum.reduce(socket, fn {p, num}, socket ->
+        stream_insert(
+          socket,
+          :deck,
+          %{
+            id: "deck-page-#{Ulid.generate()}",
+            num: num,
+            slide: p,
+            animation: ""
+          },
+          at: -1,
+          limit: -page_count
+        )
+      end)
+    else
+      socket |> stream_insert(:deck, paginate(content, slide, direction, mute), at: -1, limit: -2)
+    end
+  end
+
   defp filter_rank(pages, type) when is_atom(type) do
     pages |> Enum.filter(fn [_, rank | _] -> rank == type end)
   end
@@ -269,13 +312,14 @@ defmodule AlchemyPubWeb.PageLive do
   defp paginate(deck, page, direction, mute) do
     animation =
       case direction do
-        :left -> ["-translate-x-1/4", "scale-90", "opacity-0"]
-        :right -> ["translate-x-1/4", "scale-110", "opacity-0"]
-        nil -> []
+        :left -> "-translate-x-1/4 scale-90 opacity-0"
+        :right -> "translate-x-1/4 scale-110 opacity-0"
+        nil -> ""
       end
 
     %{
       id: "deck-page-#{Ulid.generate()}",
+      num: page,
       slide:
         if mute do
           ""
@@ -284,10 +328,10 @@ defmodule AlchemyPubWeb.PageLive do
         end,
       animation:
         if mute do
-          ["opacity-0"]
+          "opacity-0"
         else
           animation
-        end,
+        end
     }
   end
 
@@ -314,14 +358,33 @@ defmodule AlchemyPubWeb.PageLive do
       "Tag not found"
   end
 
-  defp match_subpage(%{"p" => p}) do
-    case Integer.parse(p) do
-      {page, _} -> page
-      _ -> 0
-    end
+  defp match_slide(%{"p" => p}, title, prev_page, page_count, admin) do
+    page =
+      case Integer.parse(p) do
+        {page, _} -> page
+        _ -> 0
+      end
+
+    page =
+      case {admin, page} do
+        {true, -1} -> DeckServer.set_page(title, page_count)
+        {true, p} -> DeckServer.set_page(title, p)
+        {_, -1} -> DeckServer.get_page(title)
+        {_, p} -> min(p, DeckServer.get_page(title))
+      end
+
+    direction =
+      cond do
+        prev_page == nil -> nil
+        prev_page > page -> :left
+        prev_page < page -> :right
+        true -> nil
+      end
+
+    {page, direction}
   end
 
-  defp match_subpage(_), do: 0
+  defp match_slide(_, _, _, _, _), do: {0, nil}
 
   defp match_params(params, pages) do
     case params do
@@ -349,9 +412,7 @@ defmodule AlchemyPubWeb.PageLive do
     |> Enum.uniq_by(fn {t, _} -> t end)
   end
 
-  defp remove_animation(js \\ %JS{}, classes, id) do
-    Enum.reduce(classes, js, fn c, js ->
-      JS.remove_class(js, c, to: "##{id}")
-    end)
+  defp animation(classes) do
+    JS.transition({"ease-in-out duration-150", classes, "opacity-100 scale-100 translate-0"})
   end
 end

@@ -10,6 +10,8 @@ As a markdown parser, [Earmark](https://github.com/pragdave/earmark) is used bec
 
 For styling, [daisyUI](https://github.com/saadeghi/daisyui) allows easy change of themes and creation of your own style using [Tailwind](https://github.com/tailwindlabs/tailwindcss). The site is fully responsive for mobile and desktop resolutions, and supports themes for dark and light mode. Code blocks are automatically highlighted using [highlight.js](https://github.com/highlightjs/highlight.js).
 
+With [LiveDeck](priv/pages/LiveDeck.md), AlchemyPub comes with an interactive presentation framework. It can turn any markdown page into a dynamic, interactive presentation.
+
 Page visits are tracked anonymously. Thanks to [Phoenix Presence](https://hexdocs.pm/phoenix/Phoenix.Presence.html), it can keep track of navigation and the duration of each page visit. This also powers the live online counter in the navigation bar. The tracking data is stored in a file based SQLite database using Ecto. No external database or configuration is required. The tracking data can be viewed through the [Phoenix LiveDashboard](https://github.com/phoenixframework/phoenix_live_dashboard).
 
 ## Getting Started
@@ -56,8 +58,8 @@ AlchemyPub is originally brought to you by [j4nk.dev](https://j4nk.dev). It is p
 - [x] Deployment
 - [x] Live viewer count
 - [x] Live tracking
-- [ ] Static content updates (images)
-- [ ] Slide support
+- [x] Slide support
+- [x] Keyboard navigation
 - [ ] Tracker visualization
-- [ ] Keyboard navigation
+- [ ] Static content updates (images)
 - [ ] LiveView patch tag navigation support

@@ -62,6 +62,14 @@ The following properties are available on all pages:
   ---
   ```
 
+- `deck` sets the type of the page to [[LiveDeck]] to display interactive presentations.
+
+  ```yaml
+  ---
+  deck: true
+  ---
+  ```
+
 - `hidden` hides a page from the menu. It can still be accessed directly, using a link. You can find a hidden page under [[Secret]]. Example:
 
   ```yaml
@@ -114,6 +122,10 @@ date: 1845-01-29
 
 If no date is set in the frontmatter, it will default to the modification date of the file. This allows you to drop new files in the `pages` folder without frontmatter, and they will still be ordered reasonably. Be aware that if you change a file, the date will also change. To keep the date of posts fixed, please use the `date` property.
 
+## LiveDeck: Interactive Presentations
+
+Setting the option `deck: true` in the YAML frontmatter will turn a page into a presentation. For more information on presentations, see [[LiveDeck]].
+
 ## Links & Navigation
 
 For all files, a url will be generated from its filename to link to the file. Spaces and special characters will be stripped out, and links will work case insensitive. [Pages](#pages) are referenced by name only. [Posts](#posts) will always use the date and name in the path.
@@ -141,3 +153,4 @@ A list of all supported languages can be found [here](https://github.com/highlig
 ## Analytics
 
 In the `dev` environment, the analytics dashboard can be accessed under [/dev/dashboard/analytics](/dev/dashboard/analytics). To allow access in production, make sure the access to the analytics page is secured (if you don't want it to be public). This can be set up in the `lib/alchemy_pub/router.ex` in the `scope "/dev"` block or by setting the environment variables `AUTH_USERNAME` and `AUTH_PASSWORD` for basic auth on the dashboard.
+Visiting the analytics page will also set an admin cookie, so you can take 

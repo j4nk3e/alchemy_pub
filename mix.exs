@@ -4,13 +4,13 @@ defmodule AlchemyPub.MixProject do
   def project do
     [
       app: :alchemy_pub,
-      version: "0.3.0",
+      version: "1.0.0",
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      listeners: [Phoenix.CodeReloader],
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
@@ -26,8 +26,8 @@ defmodule AlchemyPub.MixProject do
         :runtime_tools,
         :os_mon,
         :yaml_front_matter,
-        :ulid,
-      ],
+        :ulid
+      ]
     ]
   end
 
@@ -64,11 +64,11 @@ defmodule AlchemyPub.MixProject do
       {:contex, "~> 0.5"},
       {:calendar, "~> 1.0"},
       {:credo, "~> 1.7", only: :dev},
-      {:quokka, "~> 2.7", only: :dev},
+      {:quokka, "~> 2.11", only: :dev},
       {:freedom_formatter, "~> 2.1", only: :dev},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:esbuild, "~> 0.9", runtime: Mix.env() == :dev},
-      {:floki, ">= 0.30.0", only: :test},
+      {:floki, ">= 0.30.0", only: :test}
     ]
   end
 
@@ -85,14 +85,14 @@ defmodule AlchemyPub.MixProject do
       "assets.setup": [
         "cmd npm install --prefix assets",
         "tailwind.install --if-missing",
-        "esbuild.install --if-missing",
+        "esbuild.install --if-missing"
       ],
       "assets.build": ["tailwind alchemy_pub", "esbuild alchemy_pub"],
       "assets.deploy": [
         "tailwind alchemy_pub --minify",
         "esbuild alchemy_pub --minify",
-        "phx.digest",
-      ],
+        "phx.digest"
+      ]
     ]
   end
 end

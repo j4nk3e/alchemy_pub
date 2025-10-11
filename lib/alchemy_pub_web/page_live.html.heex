@@ -19,10 +19,36 @@
                   class="size-5"
                 />
                 {raw(meta["title"])}
-                <%= if Map.get(meta, "tags" , []) |> Enum.any?(fn t -> Engine.urlify(t) == @tag end) do %>
-                  <span class="badge badge-xs badge-info" />
-                <% end %>
+                <span
+                  :if={
+                    Map.get(meta, "tags", []) |> Enum.any?(fn t -> Engine.urlify(t) == @tag end)
+                  }
+                  class="badge badge-xs badge-info"
+                />
               </.link>
+            </li>
+            <li :if={@decks != []}>
+              <div class="menu-title">
+                <.icon name="hero-presentation-chart-bar" class="size-5 mr-2 mb-1" />Decks
+              </div>
+              <ul>
+                <li :for={[title, _, _, meta] <- @decks}>
+                  <.link
+                    class={(@title == title && active_class()) || ""}
+                    patch={"/#{title}"}
+                    phx-click={JS.dispatch("click", to: "#menu-open")}
+                  >
+                    {raw(meta["title"])}
+                    <span
+                      :if={
+                        Map.get(meta, "tags", [])
+                        |> Enum.any?(fn t -> Engine.urlify(t) == @tag end)
+                      }
+                      class="badge badge-xs badge-info"
+                    />
+                  </.link>
+                </li>
+              </ul>
             </li>
             <li>
               <%= for {{year, _}, posts} <- Enum.group_by(@posts, fn [_, _, date | _] -> Date.year_of_era(date) end)
@@ -47,22 +73,6 @@
                   <% end %>
                 </ul>
               <% end %>
-            </li>
-            <li :if={@decks != []}>
-              <div class="menu-title">
-                <.icon name="hero-presentation-chart-bar" class="size-5 mr-2 mb-1" />Decks
-              </div>
-              <ul>
-                <li :for={[title, _, _, meta] <- @decks}>
-                  <.link
-                    class={(@title == title && active_class()) || ""}
-                    patch={"/#{title}"}
-                    phx-click={JS.dispatch("click", to: "#menu-open")}
-                  >
-                    {raw(meta["title"])}
-                  </.link>
-                </li>
-              </ul>
             </li>
             <li>
               <div class="menu-title">
@@ -160,8 +170,8 @@
             :for={{id, content} <- @streams.deck}
             id={id}
             class={[
-              "p-4 bg-base-200 border-1 border-accent rounded-box",
-              "overflow-hidden duration-250 ease-in-out transform transition",
+              "p-4 bg-base-200 border-1 border-accent rounded-box z-10",
+              "overflow-hidden",
               "@container",
               if @all_pages do
                 "aspect-16/10 print:break-after-page"
@@ -170,14 +180,25 @@
               end,
               content.animation
             ]}
-            phx-mounted={remove_animation(content.animation, id)}
+            phx-mounted={animation(content.animation)}
           >
-            <div class="h-full w-full flex flex-col items-center justify-center">
+            <div
+              class="h-full w-full flex flex-col items-center justify-center gap-[1cqw]"
+              phx-click={
+                if @all_pages do
+                  "jump"
+                else
+                  "key"
+                end
+              }
+              phx-value-slide={content.num}
+              phx-value-key="f"
+            >
               {raw(content.slide)}
               <progress
-                :if={!@all_pages && @subpage > 0}
+                :if={!@all_pages && @slide > 0}
                 class="progress progress-accent absolute bottom-0 w-full"
-                value={@subpage}
+                value={@slide}
                 max={@page_count - 1}
               >
               </progress>
@@ -186,7 +207,12 @@
         </div>
         <div :if={@meta["rank"] == :deck && !@all_pages} class="flex flex-row justify-between">
           <div class="btn btn-ghost" phx-click="key" phx-value-key="ArrowLeft">Prev</div>
-          <div class="btn btn-ghost" phx-click="key" phx-value-key="f">Full</div>
+          <div :if={!@admin} class="btn btn-ghost" phx-click="key" phx-value-key="End">
+            Follow
+          </div>
+          <div :if={@admin} class="btn btn-ghost" phx-click="key" phx-value-key="a">
+            All
+          </div>
           <div class="btn btn-ghost" phx-click="key" phx-value-key="ArrowRight">Next</div>
         </div>
       </div>

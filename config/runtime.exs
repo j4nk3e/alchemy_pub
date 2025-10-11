@@ -29,8 +29,17 @@ if System.get_env("PHX_SERVER") do
       You can generate one by calling: mix phx.gen.secret
       """
 
+  random_secret = fn key ->
+    require Logger
+
+    secret = :rand.bytes(63) |> :base64.encode_to_string(%{mode: :urlsafe}) |> to_string()
+    Logger.info("Using random secret for #{key}: #{secret}")
+    secret
+  end
+
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
+  admin_secret = System.get_env("ADMIN_SECRET") || random_secret.("ADMIN_SECRET")
 
   config :alchemy_pub, AlchemyPubWeb.Endpoint, server: true
 
@@ -42,11 +51,12 @@ if System.get_env("PHX_SERVER") do
       # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port,
+      port: port
     ],
     secret_key_base: secret_key_base
 
   config :alchemy_pub, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+  config :alchemy_pub, admin_secret: admin_secret
 
   # ## SSL Support
   #

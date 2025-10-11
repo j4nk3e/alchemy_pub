@@ -71,7 +71,7 @@ defmodule AlchemyPubWeb.DevAnalytics do
       orientation: :vertical,
       phx_event_handler: "chart_bar_clicked",
       colour_palette: :pastel1,
-      select_item: highlight,
+      select_item: highlight
     ]
 
     Plot.new(dataset, BarChart, 800, 500, options)

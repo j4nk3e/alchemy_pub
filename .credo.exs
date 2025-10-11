@@ -29,9 +29,9 @@
           "apps/*/lib/",
           "apps/*/src/",
           "apps/*/test/",
-          "apps/*/web/",
+          "apps/*/web/"
         ],
-        excluded: [~r"/_build/", ~r"/deps/", ~r"/node_modules/"],
+        excluded: [~r"/_build/", ~r"/deps/", ~r"/node_modules/"]
       },
       #
       # Load and configure plugins here:
@@ -132,7 +132,7 @@
           {Credo.Check.Refactor.NegatedConditionsWithElse, []},
           {Credo.Check.Refactor.Nesting,
            [
-             max_nesting: 3,
+             max_nesting: 3
            ]},
           {Credo.Check.Refactor.RedundantWithClauseResult, []},
           {Credo.Check.Refactor.RejectReject, []},
@@ -162,7 +162,7 @@
           {Credo.Check.Warning.UnusedRegexOperation, []},
           {Credo.Check.Warning.UnusedStringOperation, []},
           {Credo.Check.Warning.UnusedTupleOperation, []},
-          {Credo.Check.Warning.WrongTestFileExtension, []},
+          {Credo.Check.Warning.WrongTestFileExtension, []}
         ],
         disabled: [
           #
@@ -208,13 +208,13 @@
           {Credo.Check.Warning.UnsafeToAtom, []},
 
           # {Credo.Check.Refactor.MapInto, []},
-          {Credo.Check.Readability.ModuleDoc, []},
+          {Credo.Check.Readability.ModuleDoc, []}
 
           #
           # Custom checks can be created using `mix credo.gen.check`.
           #
-        ],
-      },
-    },
-  ],
+        ]
+      }
+    }
+  ]
 }

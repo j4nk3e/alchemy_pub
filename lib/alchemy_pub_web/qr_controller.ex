@@ -14,7 +14,7 @@ defmodule AlchemyPubWeb.QrController do
       background_opacity: 1,
       qrcode_color: "#000000",
       flatten: true,
-      structure: :minify,
+      structure: :minify
     }
 
     {:ok, qr} =
