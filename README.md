@@ -12,6 +12,8 @@ For styling, [daisyUI](https://github.com/saadeghi/daisyui) allows easy change o
 
 With [LiveDeck](priv/pages/LiveDeck.md), AlchemyPub comes with an interactive presentation framework. It can turn any markdown page into a dynamic, interactive presentation.
 
+![LiveDeck example](docs/livedeck.png)
+
 Page visits are tracked anonymously. Thanks to [Phoenix Presence](https://hexdocs.pm/phoenix/Phoenix.Presence.html), it can keep track of navigation and the duration of each page visit. This also powers the live online counter in the navigation bar. The tracking data is stored in a file based SQLite database using Ecto. No external database or configuration is required. The tracking data can be viewed through the [Phoenix LiveDashboard](https://github.com/phoenixframework/phoenix_live_dashboard).
 
 ## Getting Started
