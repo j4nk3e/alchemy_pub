@@ -92,10 +92,27 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 | 1   |   2   |
 | 3   |   4   |
 
-| a lot more content   |    with breaking lines forcing a wrapped line if the text is too long labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi  |
-| more content   |    with breaking lines   |
+| table   | content with breaking lines   |
+| a lot more content | with breaking lines forcing a wrapped line if the text is too long. |
 
 ---
+
+## Preview
+
+The admin view has a preview of the next slide
+
+#### Speaker notes
+
+The next slide also has a code block tagged as `notes` with speaker notes, only visible in the preview of the admin panel
+
+---
+
+```notes
+Use code block with language `notes` for speaker notes
+- What to say
+- Not being published
+- Visible only in the preview
+```
 
 ## Keybindings
 
@@ -147,6 +164,8 @@ to jump to the first/last slide of the deck
 
 ---
 
-### end
+You can find more documentation here:
 
-You can find more documentation here: [[LiveDeck]]
+[LiveDeck on Github](https://github.com/j4nk3e/alchemy_pub/blob/main/priv/pages/LiveDeck.md)
+
+### end
