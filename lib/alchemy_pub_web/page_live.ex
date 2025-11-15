@@ -46,8 +46,10 @@ defmodule AlchemyPubWeb.PageLive do
        follow: false,
        page_count: nil,
        fullscreen: false,
+       preview: nil,
        mute: false,
        all_pages: false,
+       has_next: false,
        admin: admin
      )
      |> stream_configure(:deck, [])
@@ -68,19 +70,18 @@ defmodule AlchemyPubWeb.PageLive do
   end
 
   defp apply_keypress(param, assigns) do
-    %{a: a, f: f, m: m} = params = get_params(assigns)
+    %{a: a, f: f} = params = get_params(assigns)
 
     case param["key"] do
-      "a" -> %{params | a: not a}
-      "f" -> %{params | f: not f}
-      "m" -> %{params | m: not m}
+      "a" -> %{params | a: not a, f: f && a}
+      "f" -> %{params | f: not f, a: a && f}
       "Home" -> %{params | p: 0}
       "End" when assigns.admin -> %{params | p: assigns.page_count}
       "End" -> %{params | p: -1}
       "ArrowRight" -> %{params | p: assigns.slide + 1}
       "ArrowLeft" -> %{params | p: max(0, assigns.slide - 1)}
       "Escape" -> %{params | f: false}
-      _ -> params
+      _ -> nil
     end
   end
 
@@ -93,9 +94,23 @@ defmodule AlchemyPubWeb.PageLive do
       end
 
     f = get_in(assigns.fullscreen) || false
-    m = get_in(assigns.mute) || false
     a = get_in(assigns.all_pages) || false
-    %{a: a, p: p, f: f, m: m}
+    %{a: a, p: p, f: f}
+  end
+
+  @impl true
+  def handle_event("key", %{"key" => "m"}, socket) do
+    params = get_params(socket.assigns)
+    mute = !socket.assigns.mute
+    DeckServer.set_mute(socket.assigns.title, mute)
+
+    {:noreply,
+     socket
+     |> assign(mute: mute)
+     |> push_patch(
+       to: "/#{socket.assigns.title}?#{URI.encode_query(params)}",
+       replace: true
+     )}
   end
 
   @impl true
@@ -106,7 +121,7 @@ defmodule AlchemyPubWeb.PageLive do
       if params && socket.assigns.meta["rank"] == :deck do
         socket
         |> push_patch(
-          to: "/#{socket.assigns.title}?#{URI.encode_query(params)}",
+          to: "/#{socket.assigns.title}?#{URI.encode_query(params)}#slide-#{socket.assigns.slide}",
           replace: true
         )
       else
@@ -118,7 +133,7 @@ defmodule AlchemyPubWeb.PageLive do
 
   @impl true
   def handle_event("jump", %{"slide" => num}, socket) do
-    params = get_params(socket.assigns) |> Map.merge(%{p: num, f: true, a: false})
+    params = get_params(socket.assigns) |> Map.merge(%{p: num, a: false})
 
     socket =
       socket
@@ -228,28 +243,33 @@ defmodule AlchemyPubWeb.PageLive do
         true ->
           visible_pages = pages |> filter_hidden()
 
-          {visible_pages |> filter_rank(), posts |> filter_hidden(),
-           visible_pages |> filter_rank(:deck)}
+          {visible_pages |> filter_rank(), posts |> filter_hidden(), visible_pages |> filter_rank(:deck)}
 
         false ->
           visible_pages = pages |> filter_robot()
 
-          {visible_pages |> filter_rank(), posts |> filter_robot(),
-           visible_pages |> filter_rank(:deck)}
+          {visible_pages |> filter_rank(), posts |> filter_robot(), visible_pages |> filter_rank(:deck)}
       end
 
     socket |> assign(posts: posts, pages: pages, decks: decks, tags: tags, params: params)
   end
 
   defp build_deck(socket, params, {title, meta, content}) do
-    page_count = DeckServer.get_count(title)
-    %{admin: admin, slide: slide} = socket.assigns
-    {slide, direction} = match_slide(params, title, slide, page_count, admin)
+    %{pages: page_count, mute: mute, slide: admin_slide} = DeckServer.get_state(title)
+    admin = socket.assigns.admin
+    slide = match_slide(params, title, page_count, admin)
 
     fullscreen = params["f"] == "true"
-    mute = params["m"] == "true"
     all_pages = params["a"] == "true" && admin
     follow = params["p"] == "-1" && !admin
+
+    preview =
+      cond do
+        all_pages || !admin -> nil
+        slide == page_count -> %{slide: "last"}
+        mute && admin -> paginate(content, slide, false, true)
+        true -> paginate(content, slide + 1, mute, true)
+      end
 
     socket =
       socket
@@ -264,14 +284,21 @@ defmodule AlchemyPubWeb.PageLive do
         follow: follow,
         fullscreen: fullscreen && !all_pages,
         mute: mute && !all_pages,
+        preview: preview,
         all_pages: all_pages,
-        page_count: page_count
+        page_count: page_count,
+        has_next:
+          if admin do
+            slide < page_count - 1
+          else
+            slide < admin_slide
+          end
       )
 
     if all_pages do
       content
       |> Enum.with_index()
-      |> Enum.reduce(socket, fn {p, num}, socket ->
+      |> Enum.reduce(socket, fn {{p, _}, num}, socket ->
         stream_insert(
           socket,
           :deck,
@@ -286,7 +313,13 @@ defmodule AlchemyPubWeb.PageLive do
         )
       end)
     else
-      socket |> stream_insert(:deck, paginate(content, slide, direction, mute), at: -1, limit: -2)
+      socket
+      |> stream_insert(
+        :deck,
+        paginate(content, slide, mute, false, "opacity-0 saturate-20"),
+        at: -1,
+        limit: -2
+      )
     end
   end
 
@@ -309,22 +342,19 @@ defmodule AlchemyPubWeb.PageLive do
     end)
   end
 
-  defp paginate(deck, page, direction, mute) do
-    animation =
-      case direction do
-        :left -> "-translate-x-1/4 scale-90 opacity-0"
-        :right -> "translate-x-1/4 scale-110 opacity-0"
-        nil -> ""
-      end
+  defp paginate(deck, page, mute, preview, animation \\ "opacity-0") do
+    slide = deck |> Enum.at(page)
 
     %{
       id: "deck-page-#{Ulid.generate()}",
       num: page,
       slide:
-        if mute do
-          ""
-        else
-          deck |> Enum.at(page)
+        cond do
+          mute -> ""
+          is_tuple(slide) && preview -> slide |> elem(1)
+          is_tuple(slide) -> slide |> elem(0)
+          preview -> "end of slides"
+          true -> slide
         end,
       animation:
         if mute do
@@ -358,33 +388,22 @@ defmodule AlchemyPubWeb.PageLive do
       "Tag not found"
   end
 
-  defp match_slide(%{"p" => p}, title, prev_page, page_count, admin) do
+  defp match_slide(%{"p" => p}, title, page_count, admin) do
     page =
       case Integer.parse(p) do
         {page, _} -> page
         _ -> 0
       end
 
-    page =
-      case {admin, page} do
-        {true, -1} -> DeckServer.set_page(title, page_count)
-        {true, p} -> DeckServer.set_page(title, p)
-        {_, -1} -> DeckServer.get_page(title)
-        {_, p} -> min(p, DeckServer.get_page(title))
-      end
-
-    direction =
-      cond do
-        prev_page == nil -> nil
-        prev_page > page -> :left
-        prev_page < page -> :right
-        true -> nil
-      end
-
-    {page, direction}
+    case {admin, page} do
+      {true, -1} -> DeckServer.set_page(title, page_count)
+      {true, p} -> DeckServer.set_page(title, p)
+      {_, -1} -> DeckServer.get_state(title).slide
+      {_, p} -> min(p, DeckServer.get_state(title).slide)
+    end
   end
 
-  defp match_slide(_, _, _, _, _), do: {0, nil}
+  defp match_slide(_, _, _, _), do: 0
 
   defp match_params(params, pages) do
     case params do
@@ -413,6 +432,6 @@ defmodule AlchemyPubWeb.PageLive do
   end
 
   defp animation(classes) do
-    JS.transition({"ease-in-out duration-150", classes, "opacity-100 scale-100 translate-0"})
+    JS.transition({"ease-in-out duration-300", classes, "opacity-100 scale-100 translate-0"})
   end
 end

@@ -32,7 +32,11 @@ defmodule AlchemyPub.Engine do
     nil
   end
 
-  defp compile(md, is_deck) do
+  defp has_notes({"code", [{"class", "notes"}], _, _}), do: true
+  defp has_notes({_, _, content, _}) when is_list(content), do: Enum.any?(content, &has_notes/1)
+  defp has_notes(_), do: false
+
+  defp compile(md, false) do
     link_headers = fn {h, attrs, content, meta} ->
       id = urlify(content)
 
@@ -51,8 +55,39 @@ defmodule AlchemyPub.Engine do
           ], meta}}
     end
 
+    ast =
+      Earmark.as_ast!(md,
+        pure_links: false,
+        wikilinks: true,
+        gfm_tables: true
+      )
+
+    title = find_h1(ast)
+
+    postprocessor =
+      Earmark.Transform.make_postprocessor(
+        Earmark.Options.make_options!(registered_processors: [{"h2", link_headers}, {"h3", link_headers}])
+      )
+
+    content =
+      ast
+      |> Earmark.Transform.map_ast(postprocessor)
+      |> Earmark.transform()
+
+    {title, content}
+  end
+
+  defp compile(md, true) do
     page_split = fn {hr, _attrs, content, meta} ->
       {:replace, {hr, [{"class", "split"}], content, meta}}
+    end
+
+    strip_notes = fn node ->
+      if has_notes(node) do
+        {:replace, []}
+      else
+        node
+      end
     end
 
     ast =
@@ -64,31 +99,29 @@ defmodule AlchemyPub.Engine do
 
     title = find_h1(ast)
 
-    processors =
-      if is_deck do
-        [{"hr", page_split}]
-      else
-        [{"h2", link_headers}, {"h3", link_headers}]
-      end
+    processors = [{"hr", page_split}]
 
-    postprocessor =
+    public_post =
       Earmark.Transform.make_postprocessor(
-        Earmark.Options.make_options!(registered_processors: processors)
+        Earmark.Options.make_options!(registered_processors: [{"pre", strip_notes} | processors])
       )
 
-    content =
+    private_post =
+      Earmark.Transform.make_postprocessor(Earmark.Options.make_options!(registered_processors: processors))
+
+    public =
       ast
-      |> Earmark.Transform.map_ast(postprocessor)
+      |> Earmark.Transform.map_ast(public_post)
       |> Earmark.transform()
+      |> String.split("<hr class=\"split\">")
 
-    content =
-      if is_deck do
-        content |> String.split("<hr class=\"split\">")
-      else
-        content
-      end
+    private =
+      ast
+      |> Earmark.Transform.map_ast(private_post)
+      |> Earmark.transform()
+      |> String.split("<hr class=\"split\">")
 
-    {title, content}
+    {title, Enum.zip(public, private)}
   end
 
   def title(filename, h1, frontmatter) do
@@ -103,8 +136,14 @@ defmodule AlchemyPub.Engine do
 
   def find_date(date) do
     case Date.from_iso8601(date) do
-      {:ok, d} -> :ets.match(@ets, {:"$1", :_, d, :_, :_}) |> List.first()
-      _ -> nil
+      {:ok, d} ->
+        for [title, meta] <- :ets.match(@ets, {:"$1", :_, d, :"$2", :_}), !meta["hidden"] do
+          [title]
+        end
+        |> List.first()
+
+      _ ->
+        nil
     end
   end
 

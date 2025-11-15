@@ -43,6 +43,17 @@ Becoming an Admin
 3. Navigate back to your page.
 4. An "Admin" badge will appear in the menu, confirming your status for the current session.
 
+### Preview
+
+- Preview: The next slide will be displayed below the current slide.
+- Speaker notes: Code blocks with the `notes` class will be hidden from the slides, but are visible in the preview. You can use them to put your speaker notes on the next slide. Example:
+
+  ~~~markdown
+  ```notes
+  Put your speaker notes here
+  ```
+  ~~~
+
 ### Presentation Control
 
 As an admin, you control the presentation for all viewers. Non-admin visitors can only navigate up to the slide you are currently on.
@@ -54,6 +65,7 @@ As an admin, you control the presentation for all viewers. Non-admin visitors ca
 ### Slide Overview
 
 Press the `A` key or the All button to see a complete overview of all slides in your deck. This is useful for quickly jumping to a specific slide. This is only possible as an Admin.
+- Navigation: Clicking a slide in the overview will jump directly to this slide.
 - Printing: From the slide overview screen (press `A`), use your browser's print function (`Ctrl+P` or `Cmd+P`) to generate a print-friendly layout or PDF of all your slides.
 
 ## ⌨️ General Features & Navigation

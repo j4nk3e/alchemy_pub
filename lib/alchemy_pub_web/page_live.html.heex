@@ -110,7 +110,7 @@
             </li>
           </div>
           <div :if={@meta["qr"]} class="p-2 content-center">
-            <div class="rounded-box border-1">
+            <div class="rounded-box border">
               <div
                 class="bg-contain aspect-square w-full mix-blend-difference invert"
                 style={"background-image:url('/qr?path=#{@url}');"}
@@ -143,77 +143,93 @@
         </div>
         <div
           :if={@meta["rank"] != :deck}
-          class="prose self-center md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] p-4 flex flex-col"
+          class="prose self-center md:w-136 lg:w-2xl print:min-w-200 p-4 flex flex-col"
         >
           {raw(@content)}
         </div>
-        <div
-          :if={@meta["rank"] == :deck}
-          id="deck"
-          phx-update="stream"
-          class={
-            cond do
-              @all_pages ->
-                "flex flex-col md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] deck"
-
-              @fullscreen ->
-                "absolute top-0 left-0 w-full h-full z-1 deck overflow-hidden"
-
-              true ->
-                "relative md:w-[34rem] lg:min-w-[42rem] print:min-w-[50rem] aspect-16/10 deck"
-            end
-          }
-          phx-window-keyup="key"
-          phx-hook
-        >
+        <div :if={@meta["rank"] == :deck}>
           <div
-            :for={{id, content} <- @streams.deck}
-            id={id}
-            class={[
-              "p-4 bg-base-200 border-1 border-accent rounded-box z-10",
-              "overflow-hidden",
-              "@container",
-              if @all_pages do
-                "aspect-16/10 print:break-after-page"
-              else
-                "w-full h-full absolute top-0 left-0"
-              end,
-              content.animation
-            ]}
-            phx-mounted={animation(content.animation)}
+            id="deck"
+            phx-update="stream"
+            class={
+              cond do
+                @all_pages ->
+                  "flex flex-col md:w-136 lg:min-w-2xl print:min-w-200 deck"
+
+                @fullscreen ->
+                  "absolute top-0 left-0 w-full h-full z-1 deck overflow-hidden"
+
+                true ->
+                  "relative md:w-136 lg:min-w-2xl print:min-w-200 aspect-video deck"
+              end
+            }
+            phx-window-keyup="key"
+            phx-hook
           >
             <div
-              class="h-full w-full flex flex-col items-center justify-center gap-[1cqw]"
-              phx-click={
+              :for={{id, content} <- @streams.deck}
+              id={id}
+              class={[
+                "p-4 bg-base-200 border border-accent rounded-box z-10",
+                "overflow-hidden @container",
                 if @all_pages do
-                  "jump"
+                  "aspect-video print:break-after-page"
                 else
-                  "key"
-                end
-              }
-              phx-value-slide={content.num}
-              phx-value-key="f"
+                  "w-full h-full absolute top-0 left-0"
+                end,
+                content.animation
+              ]}
+              phx-mounted={animation(content.animation)}
             >
-              {raw(content.slide)}
-              <progress
-                :if={!@all_pages && @slide > 0}
-                class="progress progress-accent absolute bottom-0 w-full"
-                value={@slide}
-                max={@page_count - 1}
+              <div
+                id={"slide-#{content.num}"}
+                class="h-full w-full flex flex-col items-center justify-center p-[2cqw] gap-[2cqw]"
+                phx-click={
+                  if @all_pages do
+                    "jump"
+                  else
+                    "key"
+                  end
+                }
+                phx-value-slide={content.num}
+                phx-value-key="f"
               >
-              </progress>
+                {raw(content.slide)}
+                <progress
+                  :if={!@all_pages && @slide > 0}
+                  class="progress progress-accent h-[1cqw] absolute bottom-0 w-full"
+                  value={@slide}
+                  max={@page_count - 1}
+                >
+                </progress>
+              </div>
             </div>
           </div>
-        </div>
-        <div :if={@meta["rank"] == :deck && !@all_pages} class="flex flex-row justify-between">
-          <div class="btn btn-ghost" phx-click="key" phx-value-key="ArrowLeft">Prev</div>
-          <div :if={!@admin} class="btn btn-ghost" phx-click="key" phx-value-key="End">
-            Follow
+          <div :if={!@all_pages} class="flex flex-row justify-between">
+            <div class="btn btn-ghost" phx-click="key" phx-value-key="ArrowLeft">Prev</div>
+            <div :if={!@admin} class="btn btn-ghost" phx-click="key" phx-value-key="End">
+              Follow
+            </div>
+            <div :if={@admin} class="btn btn-ghost" phx-click="key" phx-value-key="a">
+              All
+            </div>
+            <div
+              class={if(@has_next, do: "btn btn-ghost", else: "btn btn-ghost btn-disabled")}
+              phx-click="key"
+              phx-value-key="ArrowRight"
+            >
+              Next
+            </div>
           </div>
-          <div :if={@admin} class="btn btn-ghost" phx-click="key" phx-value-key="a">
-            All
+          <div
+            :if={@preview}
+            class="bg-base-100 rounded-box saturate-20"
+          >
+            <hr />
+            <div class="flex flex-col p-4 prose">
+              {raw(@preview.slide)}
+            </div>
           </div>
-          <div class="btn btn-ghost" phx-click="key" phx-value-key="ArrowRight">Next</div>
         </div>
       </div>
     </div>

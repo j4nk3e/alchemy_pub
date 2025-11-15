@@ -1,5 +1,5 @@
 defmodule AlchemyPub.DeckState do
-  defstruct name: "", slide: 0, pages: 0
+  defstruct name: "", slide: 0, pages: 0, mute: false
 end
 
 defmodule AlchemyPub.DeckSupervisor do
@@ -41,12 +41,12 @@ defmodule AlchemyPub.DeckServer do
     GenServer.call({:via, Registry, {AlchemyPub.Registry, name}}, {:page, page})
   end
 
-  def get_page(name) do
-    GenServer.call({:via, Registry, {AlchemyPub.Registry, name}}, :get_page)
+  def set_mute(name, mute) do
+    GenServer.call({:via, Registry, {AlchemyPub.Registry, name}}, {:mute, mute})
   end
 
-  def get_count(name) do
-    GenServer.call({:via, Registry, {AlchemyPub.Registry, name}}, :get_count)
+  def get_state(name) do
+    GenServer.call({:via, Registry, {AlchemyPub.Registry, name}}, :get_state)
   end
 
   @impl true
@@ -62,12 +62,14 @@ defmodule AlchemyPub.DeckServer do
   end
 
   @impl true
-  def handle_call(:get_page, _from, state) do
-    {:reply, state.slide, state}
+  def handle_call({:mute, mute}, _from, state) do
+    new_state = %{state | mute: mute}
+    PubSub.broadcast(AlchemyPub.PubSub, "deck_state", new_state)
+    {:reply, new_state.slide, new_state}
   end
 
   @impl true
-  def handle_call(:get_count, _from, state) do
-    {:reply, state.pages, state}
+  def handle_call(:get_state, _from, state) do
+    {:reply, state, state}
   end
 end

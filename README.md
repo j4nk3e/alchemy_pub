@@ -10,7 +10,7 @@ As a markdown parser, [Earmark](https://github.com/pragdave/earmark) is used bec
 
 For styling, [daisyUI](https://github.com/saadeghi/daisyui) allows easy change of themes and creation of your own style using [Tailwind](https://github.com/tailwindlabs/tailwindcss). The site is fully responsive for mobile and desktop resolutions, and supports themes for dark and light mode. Code blocks are automatically highlighted using [highlight.js](https://github.com/highlightjs/highlight.js).
 
-With [LiveDeck](priv/pages/LiveDeck.md), AlchemyPub comes with an interactive presentation framework. It can turn any markdown page into a dynamic, interactive presentation.
+With [LiveDeck](priv/pages/LiveDeck.md), AlchemyPub comes with an interactive presentation framework. It can turn any markdown page into a dynamic, interactive presentation. You can see an example of [LiveDeck running here](https://j4nk.dev/livedeck).
 
 ![LiveDeck example](docs/livedeck.png)
 
