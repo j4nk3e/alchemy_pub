@@ -16,7 +16,6 @@
    Make sure to look at the daisyUI changelog: https://daisyui.com/docs/changelog/ */
 @plugin "../vendor/daisyui" {}
 
-/* whitelisted classes */
 @source inline("mr-1");
 @source inline("mb-2");
 @source inline("pl-2");
@@ -25,6 +24,18 @@
 @source inline("no-underline");
 @source inline("bg-accent");
 @source inline("accent");
+@source inline("hero-megaphone");
+@source inline("hero-newspaper");
+@source inline("hero-home-modern");
+@source inline("hero-scale");
+@source inline("hero-beaker");
+@source inline("hero-document");
+@source inline("hero-identification");
+@source inline("hero-musical-note");
+@source inline("hero-code-bracket");
+@source inline("hero-envelope");
+@source inline("hero-globe-alt");
+@source inline("hero-calendar-days");
 @source inline("prose");
 @source inline("not-prose");
 @source inline("whitespace-nowrap");
@@ -50,20 +61,6 @@
 @source inline("print:break-after-page");
 @source inline("kbd");
 
-/* whitelisted heroicons */
-@source inline("hero-megaphone");
-@source inline("hero-newspaper");
-@source inline("hero-home-modern");
-@source inline("hero-scale");
-@source inline("hero-beaker");
-@source inline("hero-document");
-@source inline("hero-identification");
-@source inline("hero-musical-note");
-@source inline("hero-code-bracket");
-@source inline("hero-envelope");
-@source inline("hero-globe-alt");
-@source inline("hero-calendar-days");
-@source inline("hero-presentation-chart-bar");
 
 /* Add variants based on LiveView classes */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
@@ -75,9 +72,59 @@
     display: contents;
 }
 
+.prose {
+    h1 {
+        font-weight: 300;
+    }
+
+    h2 {
+        font-weight: 300;
+    }
+
+    h3 {
+        font-weight: 300;
+    }
+
+    & :where(hr):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+        margin-top: 2em;
+        margin-bottom: 2em;
+    }
+
+    & :where(ul):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+        margin-top: 0em;
+        margin-bottom: 0em;
+    }
+}
+
 @layer base {
     a {
         overflow-wrap: anywhere;
+    }
+}
+
+@layer base {
+    html {
+        font-family: sans-serif;
+        font-weight: 400;
+    }
+
+    h1 {
+        font-weight: 300;
+    }
+
+    h2 {
+        font-weight: 300;
+    }
+
+    h3 {
+        font-weight: 300;
+    }
+}
+
+@layer base {
+    code {
+        font-family: monospace;
+        font-weight: 400;
     }
 }
 
@@ -88,63 +135,75 @@
 
     .deck {
         h1 {
-            @apply text-[16cqw] text-primary
+            @apply text-[12cqw] text-primary text-center;
         }
 
         h2 {
-            @apply text-[12cqw] text-secondary
+            @apply text-[10cqw] text-accent text-center;
         }
 
         h3 {
-            @apply text-[6cqw] text-accent
+            @apply text-[6cqw] text-secondary text-center;
         }
 
         h4 {
-            @apply text-[4cqw] text-info
+            @apply text-[4cqw] text-info text-center;
         }
 
         p {
-            @apply text-[3cqw] max-w-[90cqw]
-        }
-
-        pre {
-            @apply min-w-[80cqw] p-2 bg-neutral text-base-100 text-[2cqw] rounded border-1 border-info
-        }
-
-        blockquote {
-            @apply min-w-[50cqw] m-[2cqw] p-[2cqw] rounded bg-base-300
-        }
-
-        ul {
-            @apply min-w-[50cqw] list-inside list-disc
-        }
-
-        ol {
-            @apply min-w-[50cqw] list-inside list-decimal
-        }
-
-        li {
-            @apply text-[3cqw]
+            @apply text-[3cqw] max-w-[90cqw] text-center;
         }
 
         a {
-            @apply text-primary link
+            @apply link-info inline whitespace-nowrap underline decoration-dotted;
+        }
+
+        pre {
+            @apply min-w-[80cqw] p-2 bg-neutral text-base-100 text-[2cqw] rounded border-1 border-info;
+        }
+
+        blockquote {
+            @apply min-w-[50cqw] m-[2cqw] p-[2cqw] rounded-[2cqw] bg-base-100;
+        }
+
+        blockquote p {
+            @apply font-serif font-light text-left;
+        }
+
+        blockquote p em {
+            @apply text-right;
+        }
+
+        ul {
+            @apply min-w-[50cqw] list-inside list-disc;
+        }
+
+        ol {
+            @apply min-w-[50cqw] list-inside list-decimal;
+        }
+
+        li {
+            @apply text-[3cqw];
         }
 
         img {
-            @apply grow shrink justify-self-center
+            @apply object-contain w-full h-full rounded-[1cqw];
+        }
+
+        p:has(img:only-child) {
+            @apply grow shrink justify-center min-w-0 min-h-0;
         }
 
         table {
-            @apply min-w-[50cqw] m-[1cqw] bg-base-300 rounded text-[3cqw]
+            @apply min-w-[50cqw] m-[1cqw] bg-base-100 rounded-[2cqw] text-[3cqw];
         }
 
         th {
-            @apply px-[2cqw] py-[1cqw]
+            @apply px-[2cqw] py-[1cqw];
         }
 
         td {
-            @apply px-[2cqw] py-[1cqw]
+            @apply px-[2cqw] py-[1cqw];
         }
 
         & table {
@@ -155,6 +214,13 @@
     }
 }
 
+code.inline {
+    display: contents;
+    padding: 0 0.5em;
+    color: #f38ba8;
+}
+
+/* This file is for your main application CSS */
 code.hljs {
     color: #cdd6f4;
     background: transparent;
@@ -340,8 +406,4 @@ code .hljs-addition {
 code .hljs-deletion {
     color: #f38ba8;
     background: rgba(243, 139, 168, 0.15);
-}
-
-[class~="@container"]>*+* {
-    border: 5px solid red !important;
 }
