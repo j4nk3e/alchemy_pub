@@ -38,6 +38,18 @@ mix phx.digest.clean --all
 PHX_SERVER=true PHX_HOST=localhost SECRET_KEY_BASE="{{ key }}" _build/prod/rel/alchemy_pub/bin/alchemy_pub start
 ```
 
+### Deployment on fly.io
+
+Set an admin secret
+```
+flyctl secrets set ADMIN_SECRET=(openssl rand -base64 48)
+```
+
+And deploy
+```
+flyctl deploy
+```
+
 ## Credits
 
 AlchemyPub is originally brought to you by [j4nk.dev](https://j4nk.dev). It is published under the [Apache License 2.0](LICENSE).

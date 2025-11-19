@@ -216,11 +216,13 @@ defmodule AlchemyPub.Engine do
   end
 
   def init(base_path: path) do
-    {:ok, watcher_pid} = FileSystem.start_link(dirs: [path], name: :file_watcher)
+    # Ensure path is absolute
+    abs_path = Path.expand(path)
+    {:ok, watcher_pid} = FileSystem.start_link(dirs: [abs_path], name: :file_watcher)
     FileSystem.subscribe(watcher_pid)
 
     :ets.new(@ets, [:set, :named_table])
-    files = Path.wildcard("#{path}/**/*.md")
+    files = Path.wildcard("#{abs_path}/**/*.md")
 
     entries =
       for f <- files, path = Path.expand(f) do

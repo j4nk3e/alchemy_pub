@@ -34,8 +34,8 @@ defmodule AlchemyPubWeb.Router do
   # end
 
   def require_basic_auth(conn, _opts) do
-    username = System.get_env("AUTH_USERNAME")
-    password = System.get_env("AUTH_PASSWORD")
+    username = System.get_env("AUTH_USERNAME") || "admin"
+    password = System.get_env("AUTH_PASSWORD") || Application.get_env(:alchemy_pub, :admin_secret)
     Plug.BasicAuth.basic_auth(conn, username: username, password: password)
   end
 

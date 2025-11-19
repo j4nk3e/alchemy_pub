@@ -17,7 +17,7 @@ defmodule AlchemyPub.Application do
       # {AlchemyPub.Worker, arg},
       {Registry, [keys: :unique, name: AlchemyPub.Registry]},
       {DynamicSupervisor, strategy: :one_for_one, name: AlchemyPub.DeckSupervisor},
-      {AlchemyPub.Engine, base_path: "priv/pages"},
+      {AlchemyPub.Engine, base_path: Path.join(:code.priv_dir(:alchemy_pub), "pages")},
       AlchemyPub.Presence,
       AlchemyPub.Repo,
       # Start to serve requests, typically the last entry
